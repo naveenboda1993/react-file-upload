@@ -11,7 +11,7 @@ const fileRoutes = require('./routes/files');
 const { errorHandler } = require('./middleware/errorHandler');
 
 const app = express();
-
+app.set('trust proxy', 1); 
 // Security middleware
 app.use(helmet());
 
