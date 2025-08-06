@@ -3,6 +3,7 @@ import { User, CreateUserData } from '../../types';
 import { Edit2, Trash2, Plus } from 'lucide-react';
 import { AddUserModal } from './AddUserModal';
 import { EditUserModal } from './EditUserModal';
+import { userService } from '../../services/userService';
 
 export const UserTable: React.FC = () => {
   const [users, setUsers] = useState<User[]>([]);
@@ -11,56 +12,26 @@ export const UserTable: React.FC = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Mock data - replace with actual API call
-    setTimeout(() => {
-      setUsers([
-        {
-          id: '1',
-          email: 'admin@example.com',
-          name: 'Admin User',
-          role: 'admin',
-          createdAt: '2024-01-01T00:00:00Z'
-        },
-        {
-          id: '2',
-          email: 'user@example.com',
-          name: 'Regular User',
-          role: 'user',
-          createdAt: '2024-01-05T00:00:00Z'
-        },
-        {
-          id: '3',
-          email: 'manager@example.com',
-          name: 'Manager User',
-          role: 'user',
-          createdAt: '2024-01-10T00:00:00Z'
-        }
-      ]);
-      setLoading(false);
-    }, 1000);
+    userService.getUsers()
+      .then(setUsers)
+      .finally(() => setLoading(false));
   }, []);
 
-  const handleAddUser = (userData: CreateUserData) => {
-    const newUser: User = {
-      id: Date.now().toString(),
-      email: userData.email,
-      name: userData.name,
-      role: userData.role,
-      createdAt: new Date().toISOString()
-    };
+  const handleAddUser = async (userData: CreateUserData) => {
+    const newUser = await userService.addUser(userData);
     setUsers(prev => [...prev, newUser]);
     setShowAddModal(false);
   };
 
-  const handleEditUser = (updatedUser: User) => {
-    setUsers(prev => prev.map(user => 
-      user.id === updatedUser.id ? updatedUser : user
-    ));
+  const handleEditUser = async (updatedUser: User) => {
+    const user = await userService.updateUser(updatedUser);
+    setUsers(prev => prev.map(u => u.id === user.id ? user : u));
     setEditingUser(null);
   };
 
-  const handleDeleteUser = (userId: string) => {
+  const handleDeleteUser = async (userId: string) => {
     if (window.confirm('Are you sure you want to delete this user?')) {
+      await userService.deleteUser(userId);
       setUsers(prev => prev.filter(user => user.id !== userId));
     }
   };
