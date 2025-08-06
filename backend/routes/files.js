@@ -39,7 +39,7 @@ router.post('/upload', authenticate, upload.single('file'), async (req, res) => 
     }
 
     // Upload to Azure Blob Storage
-    const uploadResult = await azureBlobService.uploadFile(req.file, req.user._id);
+    // const uploadResult = await azureBlobService.uploadFile(req.file, req.user._id);
 
     // Save document metadata to database
     const document = new Document({
@@ -48,8 +48,8 @@ router.post('/upload', authenticate, upload.single('file'), async (req, res) => 
       size: req.file.size,
       type: req.file.mimetype,
       uploadedBy: req.user._id,
-      blobName: uploadResult.blobName,
-      downloadUrl: uploadResult.downloadUrl
+      // blobName: uploadResult.blobName,
+      // downloadUrl: uploadResult.downloadUrl
     });
 
     await document.save();
@@ -236,7 +236,7 @@ router.delete('/:id', authenticate, async (req, res) => {
     }
 
     // Delete from Azure Blob Storage
-    await azureBlobService.deleteFile(document.blobName);
+    // await azureBlobService.deleteFile(document.blobName);
 
     // Delete from database
     await Document.findByIdAndDelete(req.params.id);

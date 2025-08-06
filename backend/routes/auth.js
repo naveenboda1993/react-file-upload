@@ -61,17 +61,17 @@ router.post('/register', validateRequest(schemas.register), async (req, res) => 
 router.post('/login', validateRequest(schemas.login), async (req, res) => {
   try {
     const { email, password } = req.body;
-
+    console.info('Received login request with email:', email);
     // Find user by email
     const user = await User.findOne({ email, isActive: true });
     if (!user) {
-      return res.status(401).json({ message: 'Invalid credentials' });
+      return res.status(401).json({ message: 'Invalid credentials email' });
     }
 
     // Check password
     const isPasswordValid = await user.comparePassword(password);
     if (!isPasswordValid) {
-      return res.status(401).json({ message: 'Invalid credentials' });
+      return res.status(401).json({ message: 'Invalid credentials password' });
     }
 
     // Generate token
