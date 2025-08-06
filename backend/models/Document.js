@@ -29,12 +29,12 @@ const documentSchema = new mongoose.Schema({
   },
   blobName: {
     type: String,
-    required: true,
+    required: false,
     unique: true
   },
   downloadUrl: {
     type: String,
-    required: true
+    required: false
   },
   isShared: {
     type: Boolean,
