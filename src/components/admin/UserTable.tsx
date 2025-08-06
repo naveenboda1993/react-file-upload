@@ -25,14 +25,14 @@ export const UserTable: React.FC = () => {
 
   const handleEditUser = async (updatedUser: User) => {
     const user = await userService.updateUser(updatedUser);
-    setUsers(prev => prev.map(u => u.id === user.id ? user : u));
+    setUsers(prev => prev.map(u => u._id === user._id ? user : u));
     setEditingUser(null);
   };
 
   const handleDeleteUser = async (userId: string) => {
     if (window.confirm('Are you sure you want to delete this user?')) {
       await userService.deleteUser(userId);
-      setUsers(prev => prev.filter(user => user.id !== userId));
+      setUsers(prev => prev.filter(user => user._id !== userId));
     }
   };
 
@@ -88,7 +88,7 @@ export const UserTable: React.FC = () => {
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
               {users.map((user) => (
-                <tr key={user.id} className="hover:bg-gray-50">
+                <tr key={user._id} className="hover:bg-gray-50">
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div>
                       <div className="text-sm font-medium text-gray-900">{user.name}</div>
@@ -117,7 +117,7 @@ export const UserTable: React.FC = () => {
                         <Edit2 size={16} />
                       </button>
                       <button
-                        onClick={() => handleDeleteUser(user.id)}
+                        onClick={() => user._id && handleDeleteUser(user._id)}
                         className="p-2 text-gray-500 hover:text-red-600 transition-colors"
                         title="Delete User"
                       >

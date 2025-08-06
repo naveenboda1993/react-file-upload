@@ -1,9 +1,11 @@
 export interface User {
-  id: string;
+  _id?: string;
   email: string;
   name: string;
   role: 'user' | 'admin';
   createdAt: string;
+  updatedAt?: string;     // Optional, from API
+  isActive?: boolean;     // Optional, from API
 }
 
 export interface Document {

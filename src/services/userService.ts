@@ -14,7 +14,7 @@ class UserService {
   }
 
   async updateUser(user: User): Promise<User> {
-    const response = await apiService.put<User>(`/users/${user.id}`, user);
+    const response = await apiService.put<User>(`/users/${user._id}`, user);
     return response;
   }
 
