@@ -5,6 +5,7 @@ const express = require('express');
 const multer = require('multer');
 const { v4: uuidv4 } = require('uuid');
 const Document = require('../models/Document');
+const SAPAuthSchema = require('../models/SAPAuth');
 const { authenticate, authorize } = require('../middleware/auth');
 const azureBlobService = require('../services/azureBlobService');
 //const sapAuthService = require('../services/sapAuth');
@@ -58,6 +59,7 @@ router.post('/upload', authenticate, upload.single('file'), async (req, res) => 
         data: data
     };
                  const response = await axios.request(config);
+                   console.log('SAP Auth token saved successfully',response.data);
                 const savedData = await SAPAuthSchema.create({
                     access_token: response.data.access_token,
                     token_type: response.data.token_type,
