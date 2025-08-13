@@ -1,4 +1,4 @@
-import axios, { AxiosRequestConfig } from 'axios';
+import axios from 'axios';
 import qs from 'qs';
 
 const data = qs.stringify({
@@ -37,4 +37,5 @@ class SAPAuthService {
         }
     }
 }
-module.exports = new SAPAuthService();
+
+export default new SAPAuthService();
