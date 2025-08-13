@@ -71,9 +71,12 @@ router.post('/upload', authenticate, upload.single('file'), async (req, res) => 
 
     console.log('SAP Auth token saved successfully', savedData);
     let filedata = new FormData();
-    filedata.append('file', req.file.buffer);
+    filedata.append('file', req.file.buffer, {
+      filename: req.file.originalname,
+      contentType: req.file.mimetype
+    });
     filedata.append('options', '{\n  "schemaName": "SAP_invoice_schema",\n  "clientId": "default",\n  "documentType": "invoice",\n  "receivedDate": "2020-02-17",\n  "enrichment": {\n    "sender": {\n      "top": 5,\n      "type": "businessEntity",\n      "subtype": "supplier"\n    },\n    "employee": {\n      "type": "employee"\n    }\n  }\n}');
-    
+
     const config1 = {
       method: 'post',
       maxBodyLength: Infinity,
@@ -85,7 +88,13 @@ router.post('/upload', authenticate, upload.single('file'), async (req, res) => 
       },
       data: filedata
     };
-    const sapResponse = await axios.request(config1);
+    let sapResponse;
+    try {
+      sapResponse = await axios.request(config1);
+    } catch (sapError) {
+      console.error('SAP File Upload Error:', sapError);
+      return res.status(500).json({ message: 'SAP file upload failed', error: sapError.message });
+    }
     console.log('SAP File Upload Response:', sapResponse.data);
     // await sapAuthService.fetchAndSaveSAPAuth(req.user._id)
     //   .then(() => {
@@ -108,7 +117,7 @@ router.post('/upload', authenticate, upload.single('file'), async (req, res) => 
       size: req.file.size,
       type: req.file.mimetype,
       uploadedBy: req.user._id,
-      blobName:sapResponse.data.id, // Always set this!
+      blobName: sapResponse.data.id, // Always set this!
       // downloadUrl: uploadResult.downloadUrl (if available)
     });
 
