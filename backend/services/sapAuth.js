@@ -38,4 +38,6 @@ class SAPAuthService {
     }
 }
 
-export default new SAPAuthService();
+const sAPAuthService = new SAPAuthService();
+
+export default sAPAuthService;
