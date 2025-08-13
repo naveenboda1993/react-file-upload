@@ -1,6 +1,6 @@
 
 const axios = require('axios');
-const qs=require('qs');
+const qs = require('qs');
 const express = require('express');
 const multer = require('multer');
 const { v4: uuidv4 } = require('uuid');
@@ -23,9 +23,9 @@ const upload = multer({
     const allowedTypes = process.env.ALLOWED_FILE_TYPES?.split(',') || [
       'pdf', 'doc', 'docx', 'txt', 'jpg', 'jpeg', 'png', 'gif', 'xlsx', 'xls', 'ppt', 'pptx'
     ];
-    
+
     const fileExtension = file.originalname.split('.').pop()?.toLowerCase();
-    
+
     if (allowedTypes.includes(fileExtension)) {
       cb(null, true);
     } else {
@@ -44,31 +44,50 @@ router.post('/upload', authenticate, upload.single('file'), async (req, res) => 
 
     }
     const data = qs.stringify({
-        grant_type: 'client_credentials',
-        client_id: 'sb-cf0717b7-2c63-4eef-9666-84df36e58d38!b494741|dox-xsuaa-std-trial!b10844',
-        client_secret: 'ad62528a-5cb4-4fa0-af37-11d0899e4bb4$ifbMH-cSNstZXnVvyopKaQJp2DiL6hdLPb87kmao4j4='
+      grant_type: 'client_credentials',
+      client_id: 'sb-cf0717b7-2c63-4eef-9666-84df36e58d38!b494741|dox-xsuaa-std-trial!b10844',
+      client_secret: 'ad62528a-5cb4-4fa0-af37-11d0899e4bb4$ifbMH-cSNstZXnVvyopKaQJp2DiL6hdLPb87kmao4j4='
     });
-    
+
     const config = {
-        method: 'post',
-        maxBodyLength: Infinity,
-        url: 'https://351fa650trial.authentication.us10.hana.ondemand.com/oauth/token',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded'
-        },
-        data: data
+      method: 'post',
+      maxBodyLength: Infinity,
+      url: 'https://351fa650trial.authentication.us10.hana.ondemand.com/oauth/token',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded'
+      },
+      data: data
     };
-                 const response = await axios.request(config);
-                   console.log('SAP Auth token saved successfully',response.data);
-                const savedData = await SAPAuthSchema.create({
-                    access_token: response.data.access_token,
-                    token_type: response.data.token_type,
-                    expires_in: response.data.expires_in,
-                    scope: response.data.scope,
-                    jti: response.data.jti,
-                    userId: req.user._id
-                });
-                console.log('SAP Auth token saved successfully',savedData);
+    const response = await axios.request(config);
+    console.log('SAP Auth token saved successfully', response.data);
+    const savedData = await SAPAuthSchema.create({
+      access_token: response.data.access_token,
+      token_type: response.data.token_type,
+      expires_in: response.data.expires_in,
+      scope: response.data.scope,
+      jti: response.data.jti,
+      userId: req.user._id
+    });
+
+    console.log('SAP Auth token saved successfully', savedData);
+    let filedata = new FormData();
+    filedata.append('file', req.file.buffer);
+    filedata.append('options', '{\n  "schemaName": "SAP_invoice_schema",\n  "clientId": "default",\n  "documentType": "invoice",\n  "receivedDate": "2020-02-17",\n  "enrichment": {\n    "sender": {\n      "top": 5,\n      "type": "businessEntity",\n      "subtype": "supplier"\n    },\n    "employee": {\n      "type": "employee"\n    }\n  }\n}');
+    
+    const config1 = {
+      method: 'post',
+      maxBodyLength: Infinity,
+      url: 'https://aiservices-trial-dox.cfapps.us10.hana.ondemand.com/document-information-extraction/v1/document/jobs',
+      headers: {
+        'Content-Type': 'multipart/form-data',
+        'Accept': 'application/json',
+        'Authorization': 'Bearer ' + response.data.access_token,
+        ...data.getHeaders()
+      },
+      data: filedata
+    };
+    const sapResponse = await axios.request(config1);
+    console.log('SAP File Upload Response:', sapResponse.data);
     // await sapAuthService.fetchAndSaveSAPAuth(req.user._id)
     //   .then(() => {
     //     console.log('SAP Auth token fetched and saved successfully');
@@ -82,7 +101,6 @@ router.post('/upload', authenticate, upload.single('file'), async (req, res) => 
     //const uploadResult = await azureBlobService.uploadFile(req.file, req.user._id);
 
     // Always generate a unique blobName
-    const blobName = uuidv4();
 
     // Save document metadata to database
     const document = new Document({
@@ -91,7 +109,7 @@ router.post('/upload', authenticate, upload.single('file'), async (req, res) => 
       size: req.file.size,
       type: req.file.mimetype,
       uploadedBy: req.user._id,
-      blobName, // Always set this!
+      blobName:sapResponse.data.id, // Always set this!
       // downloadUrl: uploadResult.downloadUrl (if available)
     });
 
@@ -202,7 +220,7 @@ router.get('/team-files', authenticate, async (req, res) => {
 router.post('/:id/share', authenticate, async (req, res) => {
   try {
     const document = await Document.findById(req.params.id);
-    
+
     if (!document) {
       return res.status(404).json({ message: 'Document not found' });
     }
@@ -239,7 +257,7 @@ router.post('/:id/share', authenticate, async (req, res) => {
 router.post('/:id/share-team', authenticate, authorize('admin'), async (req, res) => {
   try {
     const document = await Document.findById(req.params.id);
-    
+
     if (!document) {
       return res.status(404).json({ message: 'Document not found' });
     }
@@ -265,15 +283,15 @@ router.post('/:id/share-team', authenticate, authorize('admin'), async (req, res
 router.delete('/:id', authenticate, async (req, res) => {
   try {
     const document = await Document.findById(req.params.id);
-    
+
     if (!document) {
       return res.status(404).json({ message: 'Document not found' });
     }
 
     // Check permissions: owner can delete their files, admin can delete any file
-    const canDelete = document.uploadedBy.toString() === req.user._id.toString() || 
-                     req.user.role === 'admin';
-    
+    const canDelete = document.uploadedBy.toString() === req.user._id.toString() ||
+      req.user.role === 'admin';
+
     if (!canDelete) {
       return res.status(403).json({ message: 'Access denied' });
     }
@@ -297,7 +315,7 @@ router.delete('/:id', authenticate, async (req, res) => {
 router.get('/download/:blobName', async (req, res) => {
   try {
     const blobName = decodeURIComponent(req.params.blobName);
-    
+
     // In development, serve from mock storage
     if (process.env.NODE_ENV === 'development') {
       const mockFile = azureBlobService.getMockFile(blobName);
@@ -328,11 +346,11 @@ router.get('/download/:blobName', async (req, res) => {
 // @access  Public
 router.get('/shared/:token', async (req, res) => {
   try {
-    const document = await Document.findOne({ 
+    const document = await Document.findOne({
       shareToken: req.params.token,
-      isShared: true 
+      isShared: true
     }).populate('uploadedBy', 'name email');
-    
+
     if (!document) {
       return res.status(404).json({ message: 'Shared file not found or link expired' });
     }
