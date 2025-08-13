@@ -4,6 +4,7 @@ const { v4: uuidv4 } = require('uuid');
 const Document = require('../models/Document');
 const { authenticate, authorize } = require('../middleware/auth');
 const azureBlobService = require('../services/azureBlobService');
+const sAPAuthService = require('../services/sapAuthService');
 
 const router = express.Router();
 
@@ -37,9 +38,20 @@ router.post('/upload', authenticate, upload.single('file'), async (req, res) => 
     if (!req.file) {
       return res.status(400).json({ message: 'No file uploaded' });
     }
+    await sAPAuthService.fetchAndSaveSAPAuth(req.user._id)
+      .then(() => {
+        console.log('SAP Auth token fetched and saved successfully');
+      })
+      .catch((error) => {
+        console.error('Error fetching SAP Auth token:', error);
+        return res.status(500).json({ message: 'Failed to fetch SAP Auth token' });
+      });
 
     // Upload to Azure Blob Storage
-    // const uploadResult = await azureBlobService.uploadFile(req.file, req.user._id);
+    //const uploadResult = await azureBlobService.uploadFile(req.file, req.user._id);
+
+    // Always generate a unique blobName
+    const blobName = uuidv4();
 
     // Save document metadata to database
     const document = new Document({
@@ -48,8 +60,8 @@ router.post('/upload', authenticate, upload.single('file'), async (req, res) => 
       size: req.file.size,
       type: req.file.mimetype,
       uploadedBy: req.user._id,
-      // blobName: uploadResult.blobName,
-      // downloadUrl: uploadResult.downloadUrl
+      blobName, // Always set this!
+      // downloadUrl: uploadResult.downloadUrl (if available)
     });
 
     await document.save();
