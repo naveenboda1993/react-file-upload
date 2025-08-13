@@ -81,8 +81,7 @@ router.post('/upload', authenticate, upload.single('file'), async (req, res) => 
       headers: {
         'Content-Type': 'multipart/form-data',
         'Accept': 'application/json',
-        'Authorization': 'Bearer ' + response.data.access_token,
-        ...data.getHeaders()
+        'Authorization': 'Bearer ' + response.data.access_token
       },
       data: filedata
     };
