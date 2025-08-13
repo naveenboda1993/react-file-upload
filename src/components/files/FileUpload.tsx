@@ -55,22 +55,22 @@ export const FileUpload: React.FC<FileUploadProps> = ({ onUploadComplete }) => {
   });
 
   return (
-    <div className="mb-8">
+    <div className="mb-6 sm:mb-8">
       <div
         {...getRootProps()}
-        className={`border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors ${
+        className={`border-2 border-dashed rounded-lg p-6 sm:p-8 text-center cursor-pointer transition-colors ${
           isDragActive
             ? 'border-blue-500 bg-blue-50'
             : 'border-gray-300 hover:border-gray-400'
         }`}
       >
         <input {...getInputProps()} />
-        <Upload size={48} className="mx-auto text-gray-400 mb-4" />
+        <Upload size={40} className="mx-auto text-gray-400 mb-4 sm:w-12 sm:h-12" />
         {isDragActive ? (
-          <p className="text-blue-600 font-medium">Drop the files here...</p>
+          <p className="text-blue-600 font-medium text-sm sm:text-base">Drop the files here...</p>
         ) : (
           <div>
-            <p className="text-gray-600 font-medium mb-2">
+            <p className="text-gray-600 font-medium mb-2 text-sm sm:text-base">
               Drag & drop files here, or click to select files
             </p>
             <p className="text-sm text-gray-500">
@@ -83,11 +83,11 @@ export const FileUpload: React.FC<FileUploadProps> = ({ onUploadComplete }) => {
       {Object.keys(uploadProgress).length > 0 && (
         <div className="mt-4 space-y-3">
           {Object.entries(uploadProgress).map(([fileName, progress]) => (
-            <div key={fileName} className="bg-white rounded-lg p-4 border">
+            <div key={fileName} className="bg-white rounded-lg p-3 sm:p-4 border">
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center space-x-2">
                   <File size={16} className="text-gray-500" />
-                  <span className="text-sm font-medium text-gray-900">{fileName}</span>
+                  <span className="text-sm font-medium text-gray-900 truncate max-w-[200px] sm:max-w-none">{fileName}</span>
                 </div>
                 <span className="text-sm text-gray-500">{progress}%</span>
               </div>

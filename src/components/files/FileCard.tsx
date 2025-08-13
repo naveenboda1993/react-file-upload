@@ -61,22 +61,22 @@ export const FileCard: React.FC<FileCardProps> = ({
 
   return (
     <>
-      <div className="bg-white rounded-lg border border-gray-200 p-6 hover:shadow-md transition-shadow">
+      <div className="bg-white rounded-lg border border-gray-200 p-4 sm:p-6 hover:shadow-md transition-shadow">
         <div className="flex items-start justify-between mb-4">
-          <div className="flex items-center space-x-3">
+          <div className="flex items-center space-x-3 min-w-0 flex-1">
             <File size={24} className="text-blue-600" />
-            <div>
-              <h3 className="font-medium text-gray-900 truncate">{document.name}</h3>
-              <p className="text-sm text-gray-500">
+            <div className="min-w-0 flex-1">
+              <h3 className="font-medium text-gray-900 truncate text-sm sm:text-base">{document.name}</h3>
+              <p className="text-xs sm:text-sm text-gray-500">
                 {formatFileSize(document.size)} • {formatDate(document.uploadedAt)}
               </p>
             </div>
           </div>
           
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center space-x-1 sm:space-x-2 ml-2">
             <button
               onClick={() => window.open(document.downloadUrl, '_blank')}
-              className="p-2 text-gray-500 hover:text-blue-600 transition-colors"
+              className="p-2 text-gray-500 hover:text-blue-600 transition-colors touch-manipulation"
               title="Download"
             >
               <Download size={16} />
@@ -85,7 +85,7 @@ export const FileCard: React.FC<FileCardProps> = ({
             {showShareButton && (
               <button
                 onClick={() => setShowShareModal(true)}
-                className="p-2 text-gray-500 hover:text-green-600 transition-colors"
+                className="p-2 text-gray-500 hover:text-green-600 transition-colors touch-manipulation"
                 title="Share"
               >
                 <Share2 size={16} />
@@ -96,7 +96,7 @@ export const FileCard: React.FC<FileCardProps> = ({
               <button
                 onClick={handleDelete}
                 disabled={deleting}
-                className="p-2 text-gray-500 hover:text-red-600 transition-colors disabled:opacity-50"
+                className="p-2 text-gray-500 hover:text-red-600 transition-colors disabled:opacity-50 touch-manipulation"
                 title="Delete"
               >
                 <Trash2 size={16} />
@@ -107,11 +107,11 @@ export const FileCard: React.FC<FileCardProps> = ({
         
         {document.isShared && document.shareLink && (
           <div className="mt-4 p-3 bg-green-50 rounded-lg">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between space-y-2 sm:space-y-0">
               <span className="text-sm text-green-800 font-medium">Shared</span>
               <button
                 onClick={copyShareLink}
-                className="flex items-center space-x-1 text-sm text-green-700 hover:text-green-800 transition-colors"
+                className="flex items-center space-x-1 text-sm text-green-700 hover:text-green-800 transition-colors touch-manipulation self-start sm:self-auto"
               >
                 <Copy size={14} />
                 <span>Copy Link</span>
@@ -120,7 +120,7 @@ export const FileCard: React.FC<FileCardProps> = ({
           </div>
         )}
         
-        <div className="mt-4 text-xs text-gray-500">
+        <div className="mt-4 text-xs text-gray-500 truncate">
           Uploaded by: {document.uploadedBy}
         </div>
       </div>

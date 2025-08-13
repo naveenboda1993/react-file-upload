@@ -5,9 +5,11 @@ import { Files, Users, FolderOpen } from 'lucide-react';
 interface SidebarProps {
   activeTab: string;
   onTabChange: (tab: string) => void;
+  isOpen?: boolean;
+  onClose?: () => void;
 }
 
-export const Sidebar: React.FC<SidebarProps> = ({ activeTab, onTabChange }) => {
+export const Sidebar: React.FC<SidebarProps> = ({ activeTab, onTabChange, isOpen = true, onClose }) => {
   const { user } = useAuth();
 
   const menuItems = [
@@ -16,16 +18,36 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTab, onTabChange }) => {
     ...(user?.role === 'admin' ? [{ id: 'admin', label: 'Admin Portal', icon: Users }] : []),
   ];
 
+  const handleItemClick = (itemId: string) => {
+    onTabChange(itemId);
+    if (onClose) onClose();
+  };
+
   return (
-    <div className="bg-gray-50 w-64 min-h-screen border-r border-gray-200">
-      <nav className="mt-8">
-        <div className="px-4">
+    <>
+      {/* Mobile backdrop */}
+      {isOpen && onClose && (
+        <div 
+          className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
+          onClick={onClose}
+        />
+      )}
+      
+      {/* Sidebar */}
+      <div className={`
+        fixed lg:static inset-y-0 left-0 z-50 lg:z-auto
+        bg-gray-50 w-64 min-h-screen border-r border-gray-200
+        transform transition-transform duration-300 ease-in-out
+        ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+      `}>
+        <nav className="mt-4 sm:mt-8">
+          <div className="px-4">
           {menuItems.map((item) => {
             const Icon = item.icon;
             return (
               <button
-                key={item.id}
-                onClick={() => onTabChange(item.id)}
+                  onClick={() => handleItemClick(item.id)}
+                  className={`w-full flex items-center px-4 py-3 text-base font-medium rounded-lg mb-2 transition-colors touch-manipulation ${
                 className={`w-full flex items-center px-4 py-3 text-sm font-medium rounded-lg mb-2 transition-colors ${
                   activeTab === item.id
                     ? 'bg-blue-600 text-white'
@@ -39,6 +61,6 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTab, onTabChange }) => {
           })}
         </div>
       </nav>
-    </div>
+    </>
   );
 };
