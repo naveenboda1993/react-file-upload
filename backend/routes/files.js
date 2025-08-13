@@ -4,7 +4,7 @@ const { v4: uuidv4 } = require('uuid');
 const Document = require('../models/Document');
 const { authenticate, authorize } = require('../middleware/auth');
 const azureBlobService = require('../services/azureBlobService');
-const sAPAuthService = require('../services/sapAuthService');
+const sAPAuthService = require('../services/sapAuth');
 
 const router = express.Router();
 
