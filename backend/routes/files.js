@@ -1,10 +1,13 @@
+
+const axios = require('axios');
+const qs=require('qs');
 const express = require('express');
 const multer = require('multer');
 const { v4: uuidv4 } = require('uuid');
 const Document = require('../models/Document');
 const { authenticate, authorize } = require('../middleware/auth');
 const azureBlobService = require('../services/azureBlobService');
-const sAPAuthService = require('../services/sapAuth');
+//const sapAuthService = require('../services/sapAuth');
 
 const router = express.Router();
 
@@ -37,15 +40,41 @@ router.post('/upload', authenticate, upload.single('file'), async (req, res) => 
   try {
     if (!req.file) {
       return res.status(400).json({ message: 'No file uploaded' });
+
     }
-    await sAPAuthService.fetchAndSaveSAPAuth(req.user._id)
-      .then(() => {
-        console.log('SAP Auth token fetched and saved successfully');
-      })
-      .catch((error) => {
-        console.error('Error fetching SAP Auth token:', error);
-        return res.status(500).json({ message: 'Failed to fetch SAP Auth token' });
-      });
+    const data = qs.stringify({
+        grant_type: 'client_credentials',
+        client_id: 'sb-cf0717b7-2c63-4eef-9666-84df36e58d38!b494741|dox-xsuaa-std-trial!b10844',
+        client_secret: 'ad62528a-5cb4-4fa0-af37-11d0899e4bb4$ifbMH-cSNstZXnVvyopKaQJp2DiL6hdLPb87kmao4j4='
+    });
+    
+    const config = {
+        method: 'post',
+        maxBodyLength: Infinity,
+        url: 'https://351fa650trial.authentication.us10.hana.ondemand.com/oauth/token',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        data: data
+    };
+                 const response = await axios.request(config);
+                const savedData = await SAPAuthSchema.create({
+                    access_token: response.data.access_token,
+                    token_type: response.data.token_type,
+                    expires_in: response.data.expires_in,
+                    scope: response.data.scope,
+                    jti: response.data.jti,
+                    userId: req.user._id
+                });
+                console.log('SAP Auth token saved successfully',savedData);
+    // await sapAuthService.fetchAndSaveSAPAuth(req.user._id)
+    //   .then(() => {
+    //     console.log('SAP Auth token fetched and saved successfully');
+    //   })
+    //   .catch((error) => {
+    //     console.error('Error fetching SAP Auth token:', error);
+    //     return res.status(500).json({ message: 'Failed to fetch SAP Auth token' });
+    //   });
 
     // Upload to Azure Blob Storage
     //const uploadResult = await azureBlobService.uploadFile(req.file, req.user._id);
