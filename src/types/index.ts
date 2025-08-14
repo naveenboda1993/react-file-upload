@@ -17,6 +17,7 @@ export interface Document {
   uploadedAt: string;
   isShared: boolean;
   shareLink?: string;
+  status?: string;
   downloadUrl: string;
 }
 

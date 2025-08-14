@@ -9,11 +9,81 @@ export const FileDetailsPage: React.FC = () => {
   const document = location.state?.document as Document;
   console.log('Document Details:', document);
   const [loading, setLoading] = useState(true);
+  type FileData = {
+  status: string;
+  id: string;
+  fileName: string;
+  documentType: string;
+  created: string;
+  finished: string;
+  clientId: string;
+  languageCodes: string[];
+  pageCount: number;
+  schemaId: string;
+  schemaVersion: string;
+  schemaName: string;
+  width: number;
+  height: number;
+  country: string;
+  bocrVersion: string;
+  doxVersion: string;
+  fileType: string;
+  enrichment: {
+    sender: any[];
+    employee: any[];
+  };
+  dataForRetrainingStatus: string;
+  extraction?: {
+    headerFields?: ExtractionHeaderField[];
+    lineItems?: ExtractionLineItem[][];
+  };
+};
 
+type ExtractionHeaderField = {
+  name: string;
+  category: string;
+  value: string | number;
+  rawValue: string;
+  type: "string" | "number" | "date";
+  page: number;
+  confidence: number;
+  coordinates: {
+    x: number;
+    y: number;
+    w: number;
+    h: number;
+  };
+  model: string;
+  label: string;
+  description: string;
+  group?: number;
+};
+
+type ExtractionLineItem = {
+  name: string;
+  category: string;
+  value: string | number;
+  rawValue: string;
+  type: "string" | "number" | "date";
+  page: number;
+  confidence: number;
+  coordinates: {
+    x: number;
+    y: number;
+    w: number;
+    h: number;
+  };
+  model: string;
+  label: string;
+  description: string;
+};
+  const [fileDetails, setFileDetails] = useState<FileData | null>(null);
   const fetchFileData = async (document: Document) => {
     try {
       const fileData = await fileService.getFileData(document.id);
       console.log('Fetched File Data:', fileData);
+      // You can set the file data to state if needed 
+       setFileDetails(fileData.data);
     } catch (error) {
       console.error('Failed to fetch files:', error);
     } finally {
@@ -264,26 +334,57 @@ export const FileDetailsPage: React.FC = () => {
 
             {/* Images */}
             <div className="bg-white rounded-lg shadow-sm border p-6">
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">Images</h2>
+              <h2 className="text-lg font-semibold text-gray-900 mb-4">Header fields</h2>
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b border-gray-200">
+                      <th className="text-left py-3 font-medium text-gray-500">Label</th>
+                      <th className="text-left py-3 font-medium text-gray-500">Type</th>
                       <th className="text-left py-3 font-medium text-gray-500">Name</th>
-                      <th className="text-left py-3 font-medium text-gray-500">Dimensions</th>
-                      <th className="text-left py-3 font-medium text-gray-500">Color Space</th>
-                      <th className="text-left py-3 font-medium text-gray-500">Bits/Component</th>
+                      <th className="text-left py-3 font-medium text-gray-500">Value</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-200">
-                    {pdfDetails.images.map((image, index) => (
+                    {fileDetails?.extraction?.headerFields?.map((field, index) => (
                       <tr key={index}>
-                        <td className="py-3 text-gray-900">{image.name}</td>
-                        <td className="py-3 text-gray-900">{image.width} × {image.height}</td>
-                        <td className="py-3 text-gray-900">{image.colorSpace}</td>
-                        <td className="py-3 text-gray-900">{image.bitsPerComponent}</td>
+                        <td className="py-3 text-gray-900">{field.label}</td>
+                        <td className="py-3 text-gray-900">{field.type}</td>
+                        <td className="py-3 text-gray-900">{field.name}</td>
+                        <td className="py-3 text-gray-900">{field.value}</td>
                       </tr>
                     ))}
+                    
+                  </tbody>
+                </table>
+              </div>
+            </div>
+             <div className="bg-white rounded-lg shadow-sm border p-6">
+              <h2 className="text-lg font-semibold text-gray-900 mb-4">Line fields</h2>
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b border-gray-200">
+                      <th className="text-left py-3 font-medium text-gray-500">Label</th>
+                      <th className="text-left py-3 font-medium text-gray-500">Type</th>
+                      <th className="text-left py-3 font-medium text-gray-500">Name</th>
+                      <th className="text-left py-3 font-medium text-gray-500">Value</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-200">
+                    {fileDetails?.extraction?.lineItems?.map((lineItems, index) => (
+                      <React.Fragment key={index}>
+                        {lineItems.map((field, fieldIndex) => (
+                          <tr key={fieldIndex}>
+                            <td className="py-3 text-gray-900">{field.label}</td>
+                            <td className="py-3 text-gray-900">{field.type}</td>
+                            <td className="py-3 text-gray-900">{field.name}</td>
+                            <td className="py-3 text-gray-900">{field.value}</td>
+                          </tr>
+                        ))}
+                      </React.Fragment>
+                    ))}
+                    
                   </tbody>
                 </table>
               </div>
