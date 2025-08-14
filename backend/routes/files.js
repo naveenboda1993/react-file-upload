@@ -88,6 +88,7 @@ router.post('/upload', authenticate, upload.single('file'), async (req, res) => 
       type: req.file.mimetype,
       uploadedBy: req.user._id,
       status: 'uploading', // Initial status
+      clientId: 'default', // Optional: set clientId if available
       blobName: sapResponse.id, // Always set this!
       // downloadUrl: uploadResult.downloadUrl (if available)
     });
@@ -106,7 +107,9 @@ router.post('/upload', authenticate, upload.single('file'), async (req, res) => 
         uploadedAt: document.createdAt,
         isShared: document.isShared,
         shareLink: document.shareLink,
-        downloadUrl: document.downloadUrl
+        downloadUrl: document.downloadUrl,
+        status: document.status,
+        clientId: document.clientId,
       }
     });
   } catch (error) {
