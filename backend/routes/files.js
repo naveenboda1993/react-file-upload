@@ -88,7 +88,7 @@ router.post('/upload', authenticate, upload.single('file'), async (req, res) => 
       type: req.file.mimetype,
       uploadedBy: req.user._id,
       status: 'uploading', // Initial status
-      blobName: sapResponse.data.id, // Always set this!
+      blobName: sapResponse.id, // Always set this!
       // downloadUrl: uploadResult.downloadUrl (if available)
     });
 

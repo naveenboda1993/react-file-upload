@@ -81,6 +81,16 @@ export const FileCard: React.FC<FileCardProps> = ({
               <p className="text-xs sm:text-sm text-gray-500">
                 {formatFileSize(document.size)} • {formatDate(document.uploadedAt)}
               </p>
+              {/* Status and Client ID */}
+              <div className="flex flex-wrap gap-2 mt-1">
+                {(document.status || document.clientId) && (
+                  <span className="inline-block bg-blue-50 text-blue-700 px-2 py-0.5 rounded text-xs font-medium">
+                    {document.status && <>{document.status}</>}
+                    {document.status && document.clientId && <span className="mx-1">|</span>}
+                    {document.clientId && <>Client ID: {document.clientId}</>}
+                  </span>
+                )}
+              </div>
             </div>
           </div>
           
