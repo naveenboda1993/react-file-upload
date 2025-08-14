@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { File, Download, Share2, Trash2, Copy } from 'lucide-react';
 import { Document } from '../../types';
 import { fileService } from '../../services/fileService';
@@ -17,6 +18,7 @@ export const FileCard: React.FC<FileCardProps> = ({
   showDeleteButton = true,
   showShareButton = true 
 }) => {
+  const navigate = useNavigate();
   const [showShareModal, setShowShareModal] = useState(false);
   const [deleting, setDeleting] = useState(false);
 
@@ -59,6 +61,10 @@ export const FileCard: React.FC<FileCardProps> = ({
     }
   };
 
+  const handleFileNameClick = () => {
+    navigate('/file-details', { state: { document } });
+  };
+
   return (
     <>
       <div className="bg-white rounded-lg border border-gray-200 p-4 sm:p-6 hover:shadow-md transition-shadow">
@@ -66,7 +72,12 @@ export const FileCard: React.FC<FileCardProps> = ({
           <div className="flex items-center space-x-3 min-w-0 flex-1">
             <File size={24} className="text-blue-600" />
             <div className="min-w-0 flex-1">
-              <h3 className="font-medium text-gray-900 truncate text-sm sm:text-base">{document.name}</h3>
+              <h3 
+                className="font-medium text-gray-900 truncate text-sm sm:text-base cursor-pointer hover:text-blue-600 transition-colors"
+                onClick={handleFileNameClick}
+              >
+                {document.name}
+              </h3>
               <p className="text-xs sm:text-sm text-gray-500">
                 {formatFileSize(document.size)} • {formatDate(document.uploadedAt)}
               </p>
