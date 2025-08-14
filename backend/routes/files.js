@@ -10,6 +10,7 @@ const { authenticate, authorize } = require('../middleware/auth');
 const azureBlobService = require('../services/azureBlobService');
 //const sapAuthService = require('../services/sapAuth');
 
+const FormData = require('form-data');
 const router = express.Router();
 
 // Configure multer for file uploads
@@ -60,16 +61,7 @@ router.post('/upload', authenticate, upload.single('file'), async (req, res) => 
     };
     const response = await axios.request(config);
     console.log('SAP Auth token saved successfully', response.data);
-    const savedData = await SAPAuthSchema.create({
-      access_token: response.data.access_token,
-      token_type: response.data.token_type,
-      expires_in: response.data.expires_in,
-      scope: response.data.scope,
-      jti: response.data.jti,
-      userId: req.user._id
-    });
-
-    console.log('SAP Auth token saved successfully', savedData);
+   
     let filedata = new FormData();
     filedata.append('file', req.file.buffer, {
       filename: req.file.originalname,
@@ -96,6 +88,16 @@ router.post('/upload', authenticate, upload.single('file'), async (req, res) => 
       return res.status(500).json({ message: 'SAP file upload failed', error: sapError.message });
     }
     console.log('SAP File Upload Response:', sapResponse.data);
+     const savedData = await SAPAuthSchema.create({
+      access_token: response.data.access_token,
+      token_type: response.data.token_type,
+      expires_in: response.data.expires_in,
+      scope: response.data.scope,
+      jti: response.data.jti,
+      userId: req.user._id
+    });
+
+    console.log('SAP Auth token saved successfully', savedData);
     // await sapAuthService.fetchAndSaveSAPAuth(req.user._id)
     //   .then(() => {
     //     console.log('SAP Auth token fetched and saved successfully');
