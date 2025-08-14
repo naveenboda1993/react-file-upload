@@ -8,7 +8,7 @@ const SAPAuthSchema = require('../models/SAPAuth');
 const { authenticate, authorize } = require('../middleware/auth');
 const azureBlobService = require('../services/azureBlobService');
 const { fetchSAPAccessToken } = require('../services/sapAuthService');
-const { uploadToSAP, getSAPDocument } = require('../services/sapDocumentService');
+const { uploadToSAP, getSAPDocument, getSAPDocumentJobs } = require('../services/sapDocumentService');
 
 const FormData = require('form-data');
 const router = express.Router();
@@ -45,77 +45,40 @@ router.post('/upload', authenticate, upload.single('file'), async (req, res) => 
       return res.status(400).json({ message: 'No file uploaded' });
 
     }
-    // const data = qs.stringify({
-    //   grant_type: 'client_credentials',
-    //   client_id: 'sb-cf0717b7-2c63-4eef-9666-84df36e58d38!b494741|dox-xsuaa-std-trial!b10844',
-    //   client_secret: 'ad62528a-5cb4-4fa0-af37-11d0899e4bb4$ifbMH-cSNstZXnVvyopKaQJp2DiL6hdLPb87kmao4j4='
-    // });
 
-    // const config = {
-    //   method: 'post',
-    //   maxBodyLength: Infinity,
-    //   url: 'https://351fa650trial.authentication.us10.hana.ondemand.com/oauth/token',
-    //   headers: {
-    //     'Content-Type': 'application/x-www-form-urlencoded'
-    //   },
-    //   data: data
-    // };
-    // const response = await axios.request(config);
-    // console.log('SAP Auth token saved successfully', response.data);
-    // const savedData = await SAPAuthSchema.create({
-    //   access_token: response.data.access_token,
-    //   token_type: response.data.token_type,
-    //   expires_in: response.data.expires_in,
-    //   scope: response.data.scope,
-    //   jti: response.data.jti,
-    //   userId: req.user._id
-    // });
-
-    // console.log('SAP Auth token saved successfully', savedData);
     const accessToken = await fetchSAPAccessToken(req.user._id);
     if (!accessToken) {
       return res.status(500).json({ message: 'Failed to fetch SAP access token' });
     }
-    let filedata = new FormData();
-    filedata.append('file', req.file.buffer, {
-      filename: req.file.originalname,
-      contentType: req.file.mimetype
-    });
-    filedata.append('options', '{\n  "schemaName": "SAP_invoice_schema",\n  "clientId": "default",\n  "documentType": "invoice",\n  "receivedDate": "2020-02-17",\n  "enrichment": {\n    "sender": {\n      "top": 5,\n      "type": "businessEntity",\n      "subtype": "supplier"\n    },\n    "employee": {\n      "type": "employee"\n    }\n  }\n}');
+    // let filedata = new FormData();
+    // filedata.append('file', req.file.buffer, {
+    //   filename: req.file.originalname,
+    //   contentType: req.file.mimetype
+    // });
+    // filedata.append('options', '{\n  "schemaName": "SAP_invoice_schema",\n  "clientId": "default",\n  "documentType": "invoice",\n  "receivedDate": "2020-02-17",\n  "enrichment": {\n    "sender": {\n      "top": 5,\n      "type": "businessEntity",\n      "subtype": "supplier"\n    },\n    "employee": {\n      "type": "employee"\n    }\n  }\n}');
 
-    const config1 = {
-      method: 'post',
-      maxBodyLength: Infinity,
-      url: 'https://aiservices-trial-dox.cfapps.us10.hana.ondemand.com/document-information-extraction/v1/document/jobs',
-      headers: {
-        'Content-Type': 'multipart/form-data',
-        'Accept': 'application/json',
-        'Authorization': 'Bearer ' + accessToken
-      },
-      data: filedata
-    };
-    let sapResponse;
-    try {
-      sapResponse = await axios.request(config1);
-    } catch (sapError) {
-      console.error('SAP File Upload Error:', sapError);
-      return res.status(500).json({ message: 'SAP file upload failed', error: sapError.message });
-    }
-    console.log('SAP File Upload Response:', sapResponse.data);
+    // const config1 = {
+    //   method: 'post',
+    //   maxBodyLength: Infinity,
+    //   url: 'https://aiservices-trial-dox.cfapps.us10.hana.ondemand.com/document-information-extraction/v1/document/jobs',
+    //   headers: {
+    //     'Content-Type': 'multipart/form-data',
+    //     'Accept': 'application/json',
+    //     'Authorization': 'Bearer ' + accessToken
+    //   },
+    //   data: filedata
+    // };
+    // let sapResponse;
+    // try {
+    //   sapResponse = await axios.request(config1);
+    // } catch (sapError) {
+    //   console.error('SAP File Upload Error:', sapError);
+    //   return res.status(500).json({ message: 'SAP file upload failed', error: sapError.message });
+    // }
+    // console.log('SAP File Upload Response:', sapResponse.data);
 
-    // await sapAuthService.fetchAndSaveSAPAuth(req.user._id)
-    //   .then(() => {
-    //     console.log('SAP Auth token fetched and saved successfully');
-    //   })
-    //   .catch((error) => {
-    //     console.error('Error fetching SAP Auth token:', error);
-    //     return res.status(500).json({ message: 'Failed to fetch SAP Auth token' });
-    //   });
+    const sapResponse = await uploadToSAP(req.file.buffer, req.file.originalname, req.file.mimetype, accessToken);
 
-    // Upload to Azure Blob Storage
-    //const uploadResult = await azureBlobService.uploadFile(req.file, req.user._id);
-
-    // Always generate a unique blobName
 
     // Save document metadata to database
     const document = new Document({
@@ -124,6 +87,7 @@ router.post('/upload', authenticate, upload.single('file'), async (req, res) => 
       size: req.file.size,
       type: req.file.mimetype,
       uploadedBy: req.user._id,
+      status: 'uploading', // Initial status
       blobName: sapResponse.data.id, // Always set this!
       // downloadUrl: uploadResult.downloadUrl (if available)
     });
@@ -157,8 +121,22 @@ router.post('/upload', authenticate, upload.single('file'), async (req, res) => 
 router.get('/my-files', authenticate, async (req, res) => {
   try {
     const { page = 1, limit = 10 } = req.query;
-
-
+    sapResponse = await SAPAuthSchema.findOne().sort({ createdAt: -1 });
+    if (!sapResponse) {
+      return res.status(404).json({ message: 'No SAP Auth token found' });
+    }
+    sapResponseJobs = await getSAPDocumentJobs(sapResponse.access_token);
+    sapResponseJobs?.results?.map(job => {
+      Document.updateOne(
+        { blobName: job.id },
+        {
+          status: job.status,
+          sapCreatedAt: job.createdAt,
+          sapFinishedAt: job.finished,
+          clientId: job.clientId
+        }
+      ).exec();
+    })
 
     const documents = await Document.find({ uploadedBy: req.user._id })
       .populate('uploadedBy', 'name email')
@@ -178,15 +156,16 @@ router.get('/my-files', authenticate, async (req, res) => {
       isShared: doc.isShared,
       shareLink: doc.shareLink,
       blobName: doc.blobName,
-      downloadUrl: doc.downloadUrl
+      downloadUrl: doc.downloadUrl,
+      status: doc.status,
+      sapCreatedAt: doc.sapCreatedAt,
+      sapFinishedAt: doc.sapFinishedAt,
+      clientId: doc.clientId
     }));
 
-    sapResponse = await SAPAuthSchema.findOne().sort({ createdAt: -1 });
-    if (!sapResponse) {
-      return res.status(404).json({ message: 'No SAP Auth token found' });
-    }
-    sapResponse = sapResponse.access_token;
 
+
+    
     res.json({
       documents: formattedDocuments,
       totalPages: Math.ceil(total / limit),

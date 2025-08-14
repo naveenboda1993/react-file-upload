@@ -18,7 +18,12 @@ export interface Document {
   isShared: boolean;
   shareLink?: string;
   status?: string;
+  documentType?: string;
+  created?: string;
+  finished?: string;
+  clientId?: string;
   downloadUrl: string;
+
 }
 
 export interface AuthUser {
