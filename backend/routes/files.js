@@ -124,11 +124,11 @@ router.post('/upload', authenticate, upload.single('file'), async (req, res) => 
 router.get('/my-files', authenticate, async (req, res) => {
   try {
     const { page = 1, limit = 10 } = req.query;
-    sapResponse = await SAPAuthSchema.findOne().sort({ createdAt: -1 });
-    if (!sapResponse) {
-      return res.status(404).json({ message: 'No SAP Auth token found' });
+     const accessToken = await fetchSAPAccessToken(req.user._id);
+    if (!accessToken) {
+      return res.status(500).json({ message: 'Failed to fetch SAP access token' });
     }
-    sapResponseJobs = await getSAPDocumentJobs(sapResponse.access_token);
+    sapResponseJobs = await getSAPDocumentJobs(accessToken);
     sapResponseJobs?.results?.map(job => {
       Document.updateOne(
         { blobName: job.id },

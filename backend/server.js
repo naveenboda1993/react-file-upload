@@ -8,6 +8,7 @@ require('dotenv').config();
 const authRoutes = require('./routes/auth');
 const userRoutes = require('./routes/users');
 const fileRoutes = require('./routes/files');
+const environmentProfileRoutes = require('./routes/environmentProfiles');
 const { errorHandler } = require('./middleware/errorHandler');
 
 const app = express();
@@ -57,9 +58,9 @@ mongoose.connect(process.env.MONGODB_URI, {
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/files', fileRoutes);
+app.use('/api/environment-profiles', environmentProfileRoutes);
 
-
-const BuildVersion= "2.2.0";
+const BuildVersion= "2.3.0";
 
 
 // Health check endpoint

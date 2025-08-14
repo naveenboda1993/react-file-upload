@@ -45,3 +45,18 @@ export interface CreateUserData {
   password: string;
   role: 'user' | 'admin';
 }
+
+export interface EnvironmentProfile {
+  id: string;
+  name: string;
+  clientId: string;
+  url: string;
+  createdAt: string;
+  createdBy: string;
+}
+
+export interface CreateEnvironmentProfileData {
+  name: string;
+  clientId: string;
+  url: string;
+}
