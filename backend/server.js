@@ -59,7 +59,7 @@ app.use('/api/users', userRoutes);
 app.use('/api/files', fileRoutes);
 
 
-const BuildVersion= "2.0.3";
+const BuildVersion= "2.1.0";
 
 
 // Health check endpoint

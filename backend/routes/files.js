@@ -61,7 +61,7 @@ router.post('/upload', authenticate, upload.single('file'), async (req, res) => 
     };
     const response = await axios.request(config);
     console.log('SAP Auth token saved successfully', response.data);
-   
+
     let filedata = new FormData();
     filedata.append('file', req.file.buffer, {
       filename: req.file.originalname,
@@ -88,7 +88,7 @@ router.post('/upload', authenticate, upload.single('file'), async (req, res) => 
       return res.status(500).json({ message: 'SAP file upload failed', error: sapError.message });
     }
     console.log('SAP File Upload Response:', sapResponse.data);
-     const savedData = await SAPAuthSchema.create({
+    const savedData = await SAPAuthSchema.create({
       access_token: response.data.access_token,
       token_type: response.data.token_type,
       expires_in: response.data.expires_in,
@@ -170,6 +170,7 @@ router.get('/my-files', authenticate, async (req, res) => {
       uploadedAt: doc.createdAt,
       isShared: doc.isShared,
       shareLink: doc.shareLink,
+      blobName: doc.blobName,
       downloadUrl: doc.downloadUrl
     }));
 
@@ -283,6 +284,50 @@ router.post('/:id/share-team', authenticate, authorize('admin'), async (req, res
     });
   } catch (error) {
     console.error('Share team file error:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// @route   DELETE /api/files/:id
+// @desc    Delete a file
+// @access  Private
+router.get('/:id', authenticate, async (req, res) => {
+  try {
+    const document = await Document.findById(req.params.id);
+
+    if (!document) {
+      return res.status(404).json({ message: 'Document not found' });
+    }
+    if (!document.blobName) {
+      return res.status(404).json({ message: 'Document blob name not found' });
+    }
+    console.log('Document Blob Name:', document.blobName);
+    const authtoken = await SAPAuthSchema.findOne().sort({ createdAt: -1 });
+    console.log('SAP Auth Token:', authtoken);
+    const config1 = {
+      method: 'get',
+      maxBodyLength: Infinity,
+      url: 'https://aiservices-trial-dox.cfapps.us10.hana.ondemand.com/document-information-extraction/v1/document/jobs/' + document.blobName + '?returnNullValues=false&extractedValues=true',
+      headers: {
+        'Content-Type': 'multipart/form-data',
+        'Accept': 'application/json',
+        'Authorization': 'Bearer ' + authtoken.access_token
+      }
+    };
+    let sapResponse;
+    try {
+      sapResponse = await axios.request(config1);
+    } catch (sapError) {
+      console.error('SAP File Upload Error:', sapError);
+      return res.status(500).json({ message: 'SAP file upload failed', error: sapError.message });
+    }
+    console.log('SAP File Upload Response:', sapResponse);
+
+
+
+    res.json({ message: 'File get successfully',data: sapResponse});
+  } catch (error) {
+    console.error('Get file error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 });
