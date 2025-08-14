@@ -1,13 +1,28 @@
-import React from 'react';
+import React, { useEffect,useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { ArrowLeft, File, Calendar, User, FileText, Hash, Eye } from 'lucide-react';
 import { Document } from '../types';
-
+import { fileService } from '../services/fileService';
 export const FileDetailsPage: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const document = location.state?.document as Document;
+  console.log('Document Details:', document);
+  const [loading, setLoading] = useState(true);
 
+  const fetchFileData = async (document: Document) => {
+    try {
+      const fileData = await fileService.getFileData(document.id);
+      console.log('Fetched File Data:', fileData);
+    } catch (error) {
+      console.error('Failed to fetch files:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+  useEffect(() => {
+    fetchFileData(document);
+  }, [document]);
   // Mock PDF details data
   const pdfDetails = {
     title: document?.name || 'Sample Document.pdf',
@@ -184,9 +199,8 @@ export const FileDetailsPage: React.FC = () => {
                     <tr>
                       <td className="py-3 font-medium text-gray-500">Encrypted</td>
                       <td className="py-3 text-gray-900">
-                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                          pdfDetails.encrypted ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'
-                        }`}>
+                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${pdfDetails.encrypted ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'
+                          }`}>
                           {pdfDetails.encrypted ? 'Yes' : 'No'}
                         </span>
                       </td>
@@ -198,9 +212,8 @@ export const FileDetailsPage: React.FC = () => {
                     <tr>
                       <td className="py-3 font-medium text-gray-500">Tagged PDF</td>
                       <td className="py-3 text-gray-900">
-                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                          pdfDetails.metadata.tagged ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                        }`}>
+                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${pdfDetails.metadata.tagged ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                          }`}>
                           {pdfDetails.metadata.tagged ? 'Yes' : 'No'}
                         </span>
                       </td>
@@ -208,9 +221,8 @@ export const FileDetailsPage: React.FC = () => {
                     <tr>
                       <td className="py-3 font-medium text-gray-500">Web Optimized</td>
                       <td className="py-3 text-gray-900">
-                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                          pdfDetails.metadata.webOptimized ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                        }`}>
+                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${pdfDetails.metadata.webOptimized ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                          }`}>
                           {pdfDetails.metadata.webOptimized ? 'Yes' : 'No'}
                         </span>
                       </td>
@@ -238,9 +250,8 @@ export const FileDetailsPage: React.FC = () => {
                         <td className="py-3 text-gray-900">{font.name}</td>
                         <td className="py-3 text-gray-900">{font.type}</td>
                         <td className="py-3">
-                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                            font.embedded ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
-                          }`}>
+                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${font.embedded ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
+                            }`}>
                             {font.embedded ? 'Yes' : 'No'}
                           </span>
                         </td>
@@ -313,9 +324,8 @@ export const FileDetailsPage: React.FC = () => {
                     <span className="text-sm text-gray-600 capitalize">
                       {permission.replace(/([A-Z])/g, ' $1').trim()}
                     </span>
-                    <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                      allowed ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                    }`}>
+                    <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${allowed ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                      }`}>
                       {allowed ? 'Allowed' : 'Denied'}
                     </span>
                   </div>
@@ -328,3 +338,4 @@ export const FileDetailsPage: React.FC = () => {
     </div>
   );
 };
+

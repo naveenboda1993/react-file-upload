@@ -301,9 +301,7 @@ router.get('/:id', authenticate, async (req, res) => {
     if (!document.blobName) {
       return res.status(404).json({ message: 'Document blob name not found' });
     }
-    console.log('Document Blob Name:', document.blobName);
     const authtoken = await SAPAuthSchema.findOne().sort({ createdAt: -1 });
-    console.log('SAP Auth Token:', authtoken);
     const config1 = {
       method: 'get',
       maxBodyLength: Infinity,
@@ -321,11 +319,9 @@ router.get('/:id', authenticate, async (req, res) => {
       console.error('SAP File Upload Error:', sapError);
       return res.status(500).json({ message: 'SAP file upload failed', error: sapError.message });
     }
-    console.log('SAP File Upload Response:', sapResponse);
 
 
-
-    res.json({ message: 'File get successfully',data: sapResponse});
+    res.json({ message: 'File get successfully',data: sapResponse.data});
   } catch (error) {
     console.error('Get file error:', error);
     res.status(500).json({ message: 'Server error' });
