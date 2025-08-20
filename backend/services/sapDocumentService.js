@@ -15,7 +15,7 @@ async function uploadToSAP(fileBuffer, originalname, mimetype, accessToken) {
         filename: originalname,
         contentType: mimetype
     });
-    filedata.append('options', '{\n  "schemaName": "SAP_invoice_schema",\n  "clientId": "default",\n  "documentType": "invoice",\n  "receivedDate": "2020-02-17",\n  "enrichment": {\n    "sender": {\n      "top": 5,\n      "type": "businessEntity",\n      "subtype": "supplier"\n    },\n    "employee": {\n      "type": "employee"\n    }\n  }\n}');
+    filedata.append('options', '{\n  "schemaName": "Common_Schema",\n  "clientId": "default",\n  "documentType": "invoice",\n  "receivedDate": "2020-02-17",\n  "enrichment": {\n    "sender": {\n      "top": 5,\n      "type": "businessEntity",\n      "subtype": "supplier"\n    },\n    "employee": {\n      "type": "employee"\n    }\n  }\n}');
 
     const url = process.env.SAP_DOC_URL || 'https://aiservices-trial-dox.cfapps.us10.hana.ondemand.com/document-information-extraction/v1/document/jobs';
 
