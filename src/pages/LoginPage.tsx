@@ -34,7 +34,7 @@ export const LoginPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
+  <div className="min-h-screen bg-gradient-to-br from-blue-100 to-blue-300 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         <div className="bg-white rounded-2xl shadow-xl p-6 sm:p-8">
           <div className="text-center mb-8">
@@ -45,7 +45,7 @@ export const LoginPage: React.FC = () => {
               DocuAI Hub
             </h1>
             <p className="text-sm sm:text-base text-gray-600">
-              Sign in to access your documents
+              Central AI document intelligence hub
             </p>
           </div>
 
