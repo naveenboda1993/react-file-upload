@@ -15,7 +15,6 @@ async function uploadToSAP(fileBuffer, originalname, mimetype, accessToken) {
         filename: originalname,
         contentType: mimetype
     });
-    // filedata.append('options', '{\n  "schemaName": "Common_Schema",\n  "clientId": "default",\n  "documentType": "invoice",\n  "receivedDate": "2020-02-17",\n  "enrichment": {\n    "sender": {\n      "top": 5,\n      "type": "businessEntity",\n      "subtype": "supplier"\n    },\n    "employee": {\n      "type": "employee"\n    }\n  }\n}');
     var options = {
         "schemaName": "Common_Schema",
         "clientId": "default",
@@ -35,8 +34,8 @@ async function uploadToSAP(fileBuffer, originalname, mimetype, accessToken) {
     }
     filedata.append('options', JSON.stringify(options));
 
-    const url = process.env.SAP_DOC_URL || 'https://aiservices-trial-dox.cfapps.us10.hana.ondemand.com/document-information-extraction/v1/document/jobs';
-
+    const url = process.env.SAP_DOC_URL || 'https://aiservices-trial-dox.cfapps.us10.hana.ondemand.com/document-information-extraction/v1/';
+    url=url+'document/jobs';
     const headers = {
         ...filedata.getHeaders(),
         'Accept': 'application/json',
@@ -58,8 +57,8 @@ async function uploadToSAP(fileBuffer, originalname, mimetype, accessToken) {
  * @returns {Promise<Object>} - SAP response data.
  */
 async function getSAPDocument(blobName, accessToken) {
-    const url = `${process.env.SAP_DOC_URL || 'https://aiservices-trial-dox.cfapps.us10.hana.ondemand.com/document-information-extraction/v1/document/jobs'}/${blobName}?returnNullValues=false&extractedValues=true`;
-
+    const baseUrl = process.env.SAP_DOC_URL || 'https://aiservices-trial-dox.cfapps.us10.hana.ondemand.com/document-information-extraction/v1/';
+    const url = `${baseUrl}document/jobs/${blobName}?returnNullValues=false&extractedValues=true`;
     const headers = {
         'Content-Type': 'multipart/form-data',
         'Accept': 'application/json',
@@ -78,10 +77,9 @@ async function getSAPDocument(blobName, accessToken) {
  * @returns {Promise<Object>} - SAP response data.
  */
 async function getSAPDocumentJobs(accessToken) {
-    const url = `${process.env.SAP_DOC_URL || 'https://aiservices-trial-dox.cfapps.us10.hana.ondemand.com/document-information-extraction/v1/document/jobs?clientId=default'}`;
-
+    const url = `${process.env.SAP_DOC_URL || 'https://aiservices-trial-dox.cfapps.us10.hana.ondemand.com/document-information-extraction/v1/'}`;
+    url=url+'document/jobs?clientId=default';
     const headers = {
-        'Content-Type': 'multipart/form-data',
         'Accept': 'application/json',
         'Authorization': 'Bearer ' + accessToken
     };

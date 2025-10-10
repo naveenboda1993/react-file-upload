@@ -113,8 +113,23 @@ router.post('/upload', authenticate, upload.single('file'), async (req, res) => 
       }
     });
   } catch (error) {
-    console.error('File upload error:', error);
-    res.status(500).json({ message: error.message || 'File upload failed' });
+    if (error instanceof multer.MulterError) {
+    res.status(500).json({
+      message: error.message || 'File upload failed',
+      errorCode: 'FILE_UPLOAD_ERROR',
+      context: 'An error occurred during file upload. Please check the file type, size, and SAP connectivity.'
+    });
+      let message = 'File upload error';
+      if (error.code === 'LIMIT_FILE_SIZE') {
+        message = 'File size exceeds the allowed limit';
+        res.status(413).json({ message });
+      } else {
+        res.status(400).json({ message: error.message });
+      }
+    } else {
+      console.error('File upload error:', error.message);
+      res.status(500).json({ message: error.message || 'File upload failed' });
+    }
   }
 });
 
@@ -176,8 +191,8 @@ router.get('/my-files', authenticate, async (req, res) => {
       total
     });
   } catch (error) {
-    console.error('Get my files error:', error);
-    res.status(500).json({ message: 'Server error' });
+    console.error(`Get my files error for user ${req.user?._id || 'unknown'}:`, error.message);
+    res.status(500).json({ message: error.message || 'Server error' });
   }
 });
 
