@@ -20,8 +20,8 @@ async function uploadToSAP(fileBuffer, originalname, mimetype, accessToken) {
             "schemaName": "SAP_invoice_schema",
             "clientId": "default",
             "documentType": "invoice",
-            "schemaVersion": "2",
-            "receivedDate": "2020-02-17",
+            "schemaVersion": "1",
+            "receivedDate": "2025-02-17",
             "enrichment": {
                 "sender": {
                     "top": 5,
@@ -54,6 +54,9 @@ async function uploadToSAP(fileBuffer, originalname, mimetype, accessToken) {
             console.error('Status:', error.response.status);
             console.error('Headers:', error.response.headers);
             console.error('Data:', error.response.data);
+            if (error.response.data?.error?.details) {
+                console.error('Details:', error.response.data.error.details);
+            }
         } else if (error.request) {
             console.error('No response received:', error.request);
         } else {
