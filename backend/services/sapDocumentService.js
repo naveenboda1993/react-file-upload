@@ -17,7 +17,7 @@ async function uploadToSAP(fileBuffer, originalname, mimetype, accessToken) {
             contentType: mimetype
         });
         var options = {
-            "schemaName": "Common_Schema",
+            "schemaName": "SAP_invoice_schema",
             "clientId": "default",
             "documentType": "invoice",
             "schemaVersion": "2",
