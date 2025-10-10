@@ -50,7 +50,15 @@ async function uploadToSAP(fileBuffer, originalname, mimetype, accessToken) {
         return response.data;
     } catch (error) {
         console.error('uploadToSAP error:', error.message);
-        // Optionally, you can throw or return a custom error object
+        if (error.response) {
+            console.error('Status:', error.response.status);
+            console.error('Headers:', error.response.headers);
+            console.error('Data:', error.response.data);
+        } else if (error.request) {
+            console.error('No response received:', error.request);
+        } else {
+            console.error('Error config:', error.config);
+        }
         throw new Error(error.response?.data?.message || error.message || 'SAP file upload failed');
     }
 }
@@ -78,6 +86,15 @@ async function getSAPDocument(blobName, accessToken) {
         return response.data;
     } catch (error) {
         console.error('getSAPDocument error:', error.message);
+        if (error.response) {
+            console.error('Status:', error.response.status);
+            console.error('Headers:', error.response.headers);
+            console.error('Data:', error.response.data);
+        } else if (error.request) {
+            console.error('No response received:', error.request);
+        } else {
+            console.error('Error config:', error.config);
+        }
         throw new Error(error.response?.data?.message || error.message || 'SAP get document failed');
     }
 }
@@ -102,6 +119,15 @@ async function getSAPDocumentJobs(accessToken) {
         return response.data;
     } catch (error) {
         console.error('getSAPDocumentJobs error:', error.message);
+        if (error.response) {
+            console.error('Status:', error.response.status);
+            console.error('Headers:', error.response.headers);
+            console.error('Data:', error.response.data);
+        } else if (error.request) {
+            console.error('No response received:', error.request);
+        } else {
+            console.error('Error config:', error.config);
+        }
         throw new Error(error.response?.data?.message || error.message || 'SAP get document jobs failed');
     }
 }
