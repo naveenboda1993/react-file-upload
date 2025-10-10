@@ -43,8 +43,10 @@ router.post('/upload', authenticate, upload.single('file'), async (req, res) => 
   try {
     if (!req.file) {
       return res.status(400).json({ message: 'No file uploaded' });
-
     }
+
+    // If you destructure with default values, use let instead of const
+    // Example: let { someVar = defaultValue } = req.body;
 
     const accessToken = await fetchSAPAccessToken(req.user._id);
     if (!accessToken) {
@@ -138,12 +140,13 @@ router.post('/upload', authenticate, upload.single('file'), async (req, res) => 
 // @access  Private
 router.get('/my-files', authenticate, async (req, res) => {
   try {
-    const { page = 1, limit = 10 } = req.query;
-     const accessToken = await fetchSAPAccessToken(req.user._id);
+  let page = parseInt(req.query.page) || 1;
+  let limit = parseInt(req.query.limit) || 10;
+    const accessToken = await fetchSAPAccessToken(req.user._id);
     if (!accessToken) {
       return res.status(500).json({ message: 'Failed to fetch SAP access token' });
     }
-    sapResponseJobs = await getSAPDocumentJobs(accessToken);
+    const sapResponseJobs = await getSAPDocumentJobs(accessToken);
     sapResponseJobs?.results?.map(job => {
       Document.updateOne(
         { blobName: job.id },
