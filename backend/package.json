@@ -1,7 +1,7 @@
 {
   "name": "document-sharing-backend",
   "version": "1.0.0",
-  "description": "Document Sharing System Backend API",
+  "description": "DocuAI Hub Backend API",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",

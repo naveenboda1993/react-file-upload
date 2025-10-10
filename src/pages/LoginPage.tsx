@@ -42,7 +42,7 @@ export const LoginPage: React.FC = () => {
               <FileText size={28} className="text-white sm:w-8 sm:h-8" />
             </div>
             <h1 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">
-              Document Sharing System
+              DocuAI Hub
             </h1>
             <p className="text-sm sm:text-base text-gray-600">
               Sign in to access your documents
