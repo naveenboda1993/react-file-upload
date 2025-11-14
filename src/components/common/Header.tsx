@@ -1,20 +1,33 @@
 import React from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { LogOut, User } from 'lucide-react';
-
+import { EnvironmentSelector } from '../environment/EnvironmentSelector';
+import { EnvironmentProfile } from '../../types';
+import { useState } from 'react';
 export const Header: React.FC = () => {
   const { user, logout } = useAuth();
+  const [selectedEnvironment, setSelectedEnvironment] = useState<EnvironmentProfile | null>(null);
 
+  const handleEnvironmentSelect = (profile: EnvironmentProfile) => {
+    setSelectedEnvironment(profile);
+    // You can add logic here to update the global environment context
+    console.log('Selected environment:', profile);
+  };
   return (
     <header className="bg-white shadow-sm border-b border-gray-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-14 sm:h-16">
           <div className="flex items-center">
             <h1 className="text-lg sm:text-xl font-semibold text-gray-900 truncate">
-              Document Sharing System
+              DocuAI Hub
             </h1>
           </div>
-          
+           <div className="flex items-center space-x-4">
+            <EnvironmentSelector
+              selectedProfile={selectedEnvironment}
+              onProfileSelect={handleEnvironmentSelect}
+            />
+          </div>
           <div className="flex items-center space-x-2 sm:space-x-4">
             <div className="flex items-center space-x-2 min-w-0">
               <User size={18} className="text-gray-500 flex-shrink-0" />

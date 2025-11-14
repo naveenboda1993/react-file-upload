@@ -17,7 +17,13 @@ export interface Document {
   uploadedAt: string;
   isShared: boolean;
   shareLink?: string;
+  status?: string;
+  documentType?: string;
+  created?: string;
+  finished?: string;
+  clientId?: string;
   downloadUrl: string;
+
 }
 
 export interface AuthUser {
@@ -38,4 +44,19 @@ export interface CreateUserData {
   name: string;
   password: string;
   role: 'user' | 'admin';
+}
+
+export interface EnvironmentProfile {
+  id: string;
+  name: string;
+  clientId: string;
+  url: string;
+  createdAt: string;
+  createdBy: string;
+}
+
+export interface CreateEnvironmentProfileData {
+  name: string;
+  clientId: string;
+  url: string;
 }

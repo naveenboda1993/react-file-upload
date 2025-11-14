@@ -6,6 +6,10 @@ class FileService {
     const response = await apiService.get<{ documents: Document[] }>('/files/my-files');
     return response.documents;
   }
+   async getFileData(id:string): Promise<any> {
+    const response = await apiService.get<{ documents: any }>('/files/' + id);
+    return response;
+  }
 
   async getTeamFiles(): Promise<Document[]> {
     const response = await apiService.get<{ documents: Document[] }>('/files/team-files');

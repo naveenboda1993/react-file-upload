@@ -36,6 +36,22 @@ const documentSchema = new mongoose.Schema({
     type: String,
     required: false
   },
+  status: {
+    type: String,
+    required: false
+  },
+   created: {
+    type: String,
+    required: false
+  },
+   finished: {
+    type: String,
+    required: false
+  },
+   clientId: {
+    type: String,
+    required: false
+  },
   isShared: {
     type: Boolean,
     default: false

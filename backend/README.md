@@ -1,4 +1,4 @@
-# Document Sharing System - Backend API
+# DocuAI Hub - Backend API
 
 A secure Node.js backend API for document sharing with JWT authentication, role-based access control, and Azure Blob Storage integration.
 

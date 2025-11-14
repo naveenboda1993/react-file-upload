@@ -34,7 +34,7 @@ export const LoginPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
+  <div className="min-h-screen bg-gradient-to-br from-blue-100 to-blue-300 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         <div className="bg-white rounded-2xl shadow-xl p-6 sm:p-8">
           <div className="text-center mb-8">
@@ -42,10 +42,10 @@ export const LoginPage: React.FC = () => {
               <FileText size={28} className="text-white sm:w-8 sm:h-8" />
             </div>
             <h1 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">
-              Document Sharing System
+              DocuAI Hub
             </h1>
             <p className="text-sm sm:text-base text-gray-600">
-              Sign in to access your documents
+              Central AI document intelligence hub
             </p>
           </div>
 
@@ -105,14 +105,6 @@ export const LoginPage: React.FC = () => {
               {loading ? 'Signing in...' : 'Sign In'}
             </button>
           </form>
-
-          <div className="mt-6 sm:mt-8 p-4 bg-gray-50 rounded-lg">
-            <p className="text-sm text-gray-600 mb-2 font-medium">Demo Credentials:</p>
-            <div className="space-y-1 text-xs text-gray-500">
-              <p><strong>Admin:</strong> admin@example.com / admin123</p>
-              <p><strong>User:</strong> user@example.com / user123</p>
-            </div>
-          </div>
         </div>
       </div>
     </div>
