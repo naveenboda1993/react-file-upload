@@ -1,4 +1,4 @@
-import React, { useEffect,useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { ArrowLeft, File, Calendar, User, FileText, Hash, Eye } from 'lucide-react';
 import { Document } from '../types';
@@ -10,80 +10,80 @@ export const FileDetailsPage: React.FC = () => {
   console.log('Document Details:', document);
   const [loading, setLoading] = useState(true);
   type FileData = {
-  status: string;
-  id: string;
-  fileName: string;
-  documentType: string;
-  created: string;
-  finished: string;
-  clientId: string;
-  languageCodes: string[];
-  pageCount: number;
-  schemaId: string;
-  schemaVersion: string;
-  schemaName: string;
-  width: number;
-  height: number;
-  country: string;
-  bocrVersion: string;
-  doxVersion: string;
-  fileType: string;
-  enrichment: {
-    sender: any[];
-    employee: any[];
+    status: string;
+    id: string;
+    fileName: string;
+    documentType: string;
+    created: string;
+    finished: string;
+    clientId: string;
+    languageCodes: string[];
+    pageCount: number;
+    schemaId: string;
+    schemaVersion: string;
+    schemaName: string;
+    width: number;
+    height: number;
+    country: string;
+    bocrVersion: string;
+    doxVersion: string;
+    fileType: string;
+    enrichment: {
+      sender: any[];
+      employee: any[];
+    };
+    dataForRetrainingStatus: string;
+    extraction?: {
+      headerFields?: ExtractionHeaderField[];
+      lineItems?: ExtractionLineItem[][];
+    };
   };
-  dataForRetrainingStatus: string;
-  extraction?: {
-    headerFields?: ExtractionHeaderField[];
-    lineItems?: ExtractionLineItem[][];
-  };
-};
 
-type ExtractionHeaderField = {
-  name: string;
-  category: string;
-  value: string | number;
-  rawValue: string;
-  type: "string" | "number" | "date";
-  page: number;
-  confidence: number;
-  coordinates: {
-    x: number;
-    y: number;
-    w: number;
-    h: number;
+  type ExtractionHeaderField = {
+    name: string;
+    category: string;
+    value: string | number;
+    rawValue: string;
+    type: "string" | "number" | "date";
+    page: number;
+    confidence: number;
+    coordinates: {
+      x: number;
+      y: number;
+      w: number;
+      h: number;
+    };
+    model: string;
+    label: string;
+    description: string;
+    group?: number;
   };
-  model: string;
-  label: string;
-  description: string;
-  group?: number;
-};
 
-type ExtractionLineItem = {
-  name: string;
-  category: string;
-  value: string | number;
-  rawValue: string;
-  type: "string" | "number" | "date";
-  page: number;
-  confidence: number;
-  coordinates: {
-    x: number;
-    y: number;
-    w: number;
-    h: number;
+  type ExtractionLineItem = {
+    name: string;
+    category: string;
+    value: string | number;
+    rawValue: string;
+    type: "string" | "number" | "date";
+    page: number;
+    confidence: number;
+    coordinates: {
+      x: number;
+      y: number;
+      w: number;
+      h: number;
+    };
+    model: string;
+    label: string;
+    description: string;
   };
-  model: string;
-  label: string;
-  description: string;
-};
   const [fileDetails, setFileDetails] = useState<FileData | null>(null);
   const fetchFileData = async (document: Document) => {
     try {
       const fileData = await fileService.getFileData(document.id);
       console.log('Fetched File Data:', fileData);
       // You can set the file data to state if needed 
-       setFileDetails(fileData.data);
+      setFileDetails(fileData.data);
     } catch (error) {
       console.error('Failed to fetch files:', error);
     } finally {
@@ -354,12 +354,12 @@ type ExtractionLineItem = {
                         <td className="py-3 text-gray-900">{field.value}</td>
                       </tr>
                     ))}
-                    
+
                   </tbody>
                 </table>
               </div>
             </div>
-             <div className="bg-white rounded-lg shadow-sm border p-6">
+            <div className="bg-white rounded-lg shadow-sm border p-6">
               <h2 className="text-lg font-semibold text-gray-900 mb-4">Line fields</h2>
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
@@ -384,7 +384,7 @@ type ExtractionLineItem = {
                         ))}
                       </React.Fragment>
                     ))}
-                    
+
                   </tbody>
                 </table>
               </div>
