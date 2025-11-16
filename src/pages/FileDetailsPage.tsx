@@ -417,7 +417,7 @@ type ExtractionLineItem = {
             </div>
 
             {/* Permissions */}
-            <div className="bg-white rounded-lg shadow-sm border p-6">
+            {/* <div className="bg-white rounded-lg shadow-sm border p-6">
               <h2 className="text-lg font-semibold text-gray-900 mb-4">Permissions</h2>
               <div className="space-y-2">
                 {Object.entries(pdfDetails.permissions).map(([permission, allowed]) => (
@@ -432,7 +432,7 @@ type ExtractionLineItem = {
                   </div>
                 ))}
               </div>
-            </div>
+            </div> */}
           </div>
         </div>
       </div>
