@@ -40,7 +40,28 @@ export const DashboardPage: React.FC = () => {
       setRefreshing(true);
     }
     try {
-      const files = await fileService.getMyFiles();
+      let files = await fileService.getMyFiles();
+
+      if (filters.status !== 'All') {
+        files = files.filter(f => f.status === filters.status);
+      }
+
+      if (filters.documentType !== 'All') {
+        files = files.filter(f => f.type === filters.documentType);
+      }
+
+      if (filters.createdTime !== 'All') {
+        const now = new Date();
+        files = files.filter(file => {
+          const createdDate = new Date(file.createdAt);
+          const daysDiff = (now.getTime() - createdDate.getTime()) / (1000 * 60 * 60 * 24);
+
+          if (filters.createdTime === 'Today') return daysDiff < 1;
+          if (filters.createdTime === 'Week') return daysDiff < 7;
+          if (filters.createdTime === 'Month') return daysDiff < 30;
+          return true;
+        });
+      }
 
       const completed = files.filter(f => f.status === 'DONE').length;
       const inProgress = files.filter(f => f.status === 'PENDING' || f.status === 'uploading').length;
