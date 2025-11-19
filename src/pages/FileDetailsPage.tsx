@@ -394,7 +394,7 @@ export const FileDetailsPage: React.FC = () => {
                   <tbody>
                     {fileDetails?.extraction?.lineItems?.map((lineItems, lineIndex) => {
                       const isExpanded = expandedLineItems.has(lineIndex);
-                      const itemName = lineItems[0]?.label || `Line Item ${lineIndex + 1}`;
+                      const itemName =  `Line Item ${lineIndex + 1}`;
 
                       return (
                         <React.Fragment key={lineIndex}>
