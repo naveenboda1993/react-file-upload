@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Filter } from 'lucide-react';
+import { RefreshCw } from 'lucide-react';
 import { fileService } from '../services/fileService';
 
 interface DashboardStats {
@@ -18,6 +18,7 @@ interface DashboardStats {
 
 export const DashboardPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [stats, setStats] = useState<DashboardStats>({
     completed: 0,
     inProgress: 0,
@@ -34,7 +35,10 @@ export const DashboardPage: React.FC = () => {
     fetchDashboardData();
   }, [filters]);
 
-  const fetchDashboardData = async () => {
+  const fetchDashboardData = async (isRefresh = false) => {
+    if (isRefresh) {
+      setRefreshing(true);
+    }
     try {
       const files = await fileService.getMyFiles();
 
@@ -83,7 +87,12 @@ export const DashboardPage: React.FC = () => {
       console.error('Failed to fetch dashboard data:', error);
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
+  };
+
+  const handleRefresh = () => {
+    fetchDashboardData(true);
   };
 
   const totalInvoices = stats.completed + stats.inProgress + stats.error;
@@ -103,9 +112,20 @@ export const DashboardPage: React.FC = () => {
     <div className="min-h-screen bg-gray-50 p-4 sm:p-6 lg:p-8">
       <div className="max-w-7xl mx-auto">
         <div className="mb-8">
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 text-center mb-8">
-            Invoices Processing Report
-          </h1>
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-8">
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-4 sm:mb-0">
+              Invoices Processing Report
+            </h1>
+            <button
+              onClick={handleRefresh}
+              disabled={refreshing}
+              className="flex items-center justify-center space-x-2 px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors disabled:opacity-50 touch-manipulation"
+              title="Refresh Report Data"
+            >
+              <RefreshCw size={20} className={refreshing ? 'animate-spin' : ''} />
+              <span>Refresh</span>
+            </button>
+          </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
             <div className="relative">
