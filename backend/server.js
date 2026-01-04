@@ -9,6 +9,7 @@ const authRoutes = require('./routes/auth');
 const userRoutes = require('./routes/users');
 const fileRoutes = require('./routes/files');
 const environmentProfileRoutes = require('./routes/environmentProfiles');
+const abbyyFilesRoutes = require('./routes/abbyyFiles');
 const { errorHandler } = require('./middleware/errorHandler');
 
 const app = express();
@@ -59,6 +60,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/files', fileRoutes);
 app.use('/api/environment-profiles', environmentProfileRoutes);
+app.use('/api/abbyy', abbyyFilesRoutes);
 
 const BuildVersion= "2.3.0";
 
