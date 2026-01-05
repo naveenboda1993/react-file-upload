@@ -1,6 +1,8 @@
 const { uploadToSAP } = require('./sapDocumentService');
 const { uploadToABBYY, isABBYYEnabled } = require('./abbyyDocumentService');
-const { startBackgroundPolling } = require('./abbyyPollingService');
+const { startBackgroundPolling: startABBYYPolling } = require('./abbyyPollingService');
+const { uploadToGoogleDocAI, isGoogleDocAIEnabled } = require('./googleDocumentAIService');
+const { startBackgroundPolling: startGooglePolling } = require('./googleDocAIPollingService');
 
 /**
  * Determines which OCR service to use and processes the document
@@ -8,7 +10,7 @@ const { startBackgroundPolling } = require('./abbyyPollingService');
  * @param {string} originalname - Original filename
  * @param {string} mimetype - MIME type
  * @param {string} sapAccessToken - SAP OAuth token
- * @param {string} preferredService - 'sap', 'abbyy', or 'auto'
+ * @param {string} preferredService - 'sap', 'abbyy', 'google', or 'auto'
  * @returns {Promise<Object>} - Processing result with service info
  */
 async function processDocument(
@@ -20,16 +22,35 @@ async function processDocument(
 ) {
   try {
     const abbyyEnabled = isABBYYEnabled();
+    const googleEnabled = isGoogleDocAIEnabled();
 
     let processingService = preferredService;
 
     if (processingService === 'auto') {
-      processingService = abbyyEnabled ? 'abbyy' : 'sap';
+      if (googleEnabled) {
+        processingService = 'google';
+      } else if (abbyyEnabled) {
+        processingService = 'abbyy';
+      } else {
+        processingService = 'sap';
+      }
     }
 
     console.log(`Processing document with ${processingService} service`);
 
-    if (processingService === 'abbyy' && abbyyEnabled) {
+    if (processingService === 'google' && googleEnabled) {
+      const result = await uploadToGoogleDocAI(fileBuffer, originalname, mimetype);
+
+      return {
+        service: 'google',
+        taskId: result.documentId,
+        operationName: result.operationName,
+        status: result.status,
+        blobName: result.documentId,
+        processingAsync: result.operationName ? true : false,
+        extraction: result.result ? result.result : null
+      };
+    } else if (processingService === 'abbyy' && abbyyEnabled) {
       const result = await uploadToABBYY(fileBuffer, originalname, mimetype, {
         language: 'English',
         exportFormat: 'json',
@@ -62,14 +83,17 @@ async function processDocument(
 }
 
 /**
- * Initializes polling for async services like ABBYY
- * @param {string} service - Service name ('sap', 'abbyy')
+ * Initializes polling for async services like ABBYY and Google
+ * @param {string} service - Service name ('sap', 'abbyy', 'google')
  * @param {string} taskId - Task ID from the service
  * @param {string} documentId - MongoDB document ID
+ * @param {string} operationName - Optional operation name for Google Document AI
  */
-async function initializeAsyncProcessing(service, taskId, documentId) {
+async function initializeAsyncProcessing(service, taskId, documentId, operationName = null) {
   if (service === 'abbyy') {
-    startBackgroundPolling(taskId, documentId);
+    startABBYYPolling(taskId, documentId);
+  } else if (service === 'google' && operationName) {
+    startGooglePolling(operationName, documentId);
   }
 }
 

@@ -5,19 +5,20 @@ import { fileService } from '../../services/fileService';
 
 interface FileUploadProps {
   onUploadComplete: () => void;
+  processingService?: 'sap' | 'abbyy' | 'google' | 'auto';
 }
 
-export const FileUpload: React.FC<FileUploadProps> = ({ onUploadComplete }) => {
+export const FileUpload: React.FC<FileUploadProps> = ({ onUploadComplete, processingService = 'auto' }) => {
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState<{[key: string]: number}>({});
 
   const onDrop = useCallback(async (acceptedFiles: File[]) => {
     setUploading(true);
-    
+
     for (const file of acceptedFiles) {
       try {
         setUploadProgress(prev => ({ ...prev, [file.name]: 0 }));
-        
+
         // Simulate upload progress
         const interval = setInterval(() => {
           setUploadProgress(prev => {
@@ -26,7 +27,7 @@ export const FileUpload: React.FC<FileUploadProps> = ({ onUploadComplete }) => {
           });
         }, 200);
 
-        await fileService.uploadFile(file);
+        await fileService.uploadFile(file, processingService);
         
         clearInterval(interval);
         setUploadProgress(prev => ({ ...prev, [file.name]: 100 }));
@@ -46,7 +47,7 @@ export const FileUpload: React.FC<FileUploadProps> = ({ onUploadComplete }) => {
     
     setUploading(false);
     onUploadComplete();
-  }, [onUploadComplete]);
+  }, [onUploadComplete, processingService]);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,

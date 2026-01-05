@@ -3,11 +3,13 @@ import { Document } from '../types';
 import { fileService } from '../services/fileService';
 import { FileUpload } from '../components/files/FileUpload';
 import { FileCard } from '../components/files/FileCard';
+import { ProcessingServiceSelector } from '../components/files/ProcessingServiceSelector';
 import { RefreshCw } from 'lucide-react';
 
 export const MyFilesPage: React.FC = () => {
   const [documents, setDocuments] = useState<Document[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedService, setSelectedService] = useState<'sap' | 'abbyy' | 'google' | 'auto'>('auto');
 
   const fetchFiles = async () => {
     try {
@@ -54,7 +56,15 @@ export const MyFilesPage: React.FC = () => {
           </button>
         </div>
 
-        <FileUpload onUploadComplete={fetchFiles} />
+        <ProcessingServiceSelector
+          selectedService={selectedService}
+          onServiceChange={setSelectedService}
+        />
+
+        <FileUpload
+          onUploadComplete={fetchFiles}
+          processingService={selectedService}
+        />
 
         {loading ? (
           <div className="flex items-center justify-center py-12">

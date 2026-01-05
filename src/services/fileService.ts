@@ -16,8 +16,12 @@ class FileService {
     return response.documents;
   }
 
-  async uploadFile(file: File): Promise<Document> {
-    const response = await apiService.uploadFile('/files/upload', file);
+  async uploadFile(file: File, processingService?: 'sap' | 'abbyy' | 'google' | 'auto'): Promise<Document> {
+    const endpoint = processingService && processingService !== 'auto' && processingService !== 'sap'
+      ? `/${processingService === 'google' ? 'google-doc-ai' : processingService}/upload`
+      : '/files/upload';
+
+    const response = await apiService.uploadFile(endpoint, file);
     return response.document;
   }
 

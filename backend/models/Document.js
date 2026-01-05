@@ -77,6 +77,35 @@ const documentSchema = new mongoose.Schema({
   teamSharedBy: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User'
+  },
+  processingService: {
+    type: String,
+    enum: ['sap', 'abbyy', 'google'],
+    required: false
+  },
+  serviceTaskId: {
+    type: String,
+    required: false
+  },
+  operationName: {
+    type: String,
+    required: false
+  },
+  errorMessage: {
+    type: String,
+    required: false
+  },
+  extraction: {
+    type: mongoose.Schema.Types.Mixed,
+    required: false
+  },
+  sapCreatedAt: {
+    type: Date,
+    required: false
+  },
+  sapFinishedAt: {
+    type: Date,
+    required: false
   }
 }, {
   timestamps: true
