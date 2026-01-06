@@ -1,18 +1,31 @@
 import React, { useState, useEffect } from 'react';
 import { FileUp, Settings, LogOut } from 'lucide-react';
 import { HomePage } from './pages/HomePage';
-import { AuthContext } from '../src/contexts/AuthContext';
+import { DesktopLoginPage } from './pages/DesktopLoginPage';
+import { desktopAuthService } from './services/desktopAuthService';
 
 export const App: React.FC = () => {
   const [appVersion, setAppVersion] = useState('');
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [apiUrl, setApiUrl] = useState(localStorage.getItem('apiUrl') || 'http://localhost:8080/api');
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     window.electronAPI?.app.getAppVersion().then(version => {
       setAppVersion(version);
     });
+
+    // Check if user is already logged in
+    const token = localStorage.getItem('token');
+    if (token) {
+      setIsAuthenticated(true);
+    }
+    setLoading(false);
   }, []);
+
+  const handleLoginSuccess = () => {
+    setIsAuthenticated(true);
+  };
 
   const handleApiUrlChange = (url: string) => {
     localStorage.setItem('apiUrl', url);
@@ -20,9 +33,17 @@ export const App: React.FC = () => {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem('authToken');
+    localStorage.removeItem('token');
     setIsAuthenticated(false);
   };
+
+  if (loading) {
+    return <div className="flex items-center justify-center h-screen">Loading...</div>;
+  }
+
+  if (!isAuthenticated) {
+    return <DesktopLoginPage onLoginSuccess={handleLoginSuccess} />;
+  }
 
   return (
     <div className="flex flex-col h-screen bg-gray-50">
@@ -62,3 +83,5 @@ export const App: React.FC = () => {
     </div>
   );
 };
+
+export default App;

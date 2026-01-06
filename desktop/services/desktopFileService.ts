@@ -1,5 +1,5 @@
 const API_URL = localStorage.getItem('apiUrl') || 'http://localhost:8080/api';
-const AUTH_TOKEN = localStorage.getItem('authToken');
+const AUTH_TOKEN = localStorage.getItem('token');
 
 interface UploadProgressCallback {
   (progress: number): void;
@@ -7,7 +7,7 @@ interface UploadProgressCallback {
 
 class DesktopFileService {
   private apiUrl = API_URL;
-  private authToken = AUTH_TOKEN;
+  private authToken = localStorage.getItem('token') || '';
 
   setApiUrl(url: string) {
     this.apiUrl = url;
@@ -16,7 +16,7 @@ class DesktopFileService {
 
   setAuthToken(token: string) {
     this.authToken = token;
-    localStorage.setItem('authToken', token);
+    localStorage.setItem('token', token);
   }
 
   async uploadFile(

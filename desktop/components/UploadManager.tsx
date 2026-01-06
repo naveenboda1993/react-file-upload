@@ -48,6 +48,7 @@ export const UploadManager: React.FC<UploadManagerProps> = ({
   }, [files]);
 
   const uploadFile = async (uploadItem: UploadItem) => {
+    console.log('uploadFile: start', uploadItem.id, uploadItem.file.path);
     try {
       setUploads(prev =>
         prev.map(u =>
@@ -56,9 +57,14 @@ export const UploadManager: React.FC<UploadManagerProps> = ({
       );
 
       const buffer = await window.electronAPI?.fs.readFile(uploadItem.file.path);
-      const file = new File([buffer], uploadItem.file.name, {
-        type: getMimeType(uploadItem.file.name)
-      });
+      console.log('uploadFile: readFile result', buffer);
+
+      const mime = getMimeType(uploadItem.file.name);
+      const uint8 = buffer instanceof Uint8Array ? buffer : new Uint8Array(buffer);
+      const blob = new Blob([uint8], { type: mime });
+      const file = new File([blob], uploadItem.file.name, { type: mime });
+
+      console.log('uploadFile: uploading file', uploadItem.file.name, 'size', file.size);
 
       const response = await desktopFileService.uploadFile(
         file,
@@ -72,6 +78,8 @@ export const UploadManager: React.FC<UploadManagerProps> = ({
         }
       );
 
+      console.log('uploadFile: upload response', response);
+
       setUploads(prev =>
         prev.map(u =>
           u.id === uploadItem.id
@@ -82,14 +90,15 @@ export const UploadManager: React.FC<UploadManagerProps> = ({
 
       setStats(prev => ({ ...prev, successful: prev.successful + 1 }));
     } catch (error) {
+      console.error('uploadFile: error', error);
       setUploads(prev =>
         prev.map(u =>
           u.id === uploadItem.id
             ? {
-              ...u,
-              status: 'error' as const,
-              error: error instanceof Error ? error.message : 'Upload failed'
-            }
+                ...u,
+                status: 'error' as const,
+                error: error instanceof Error ? error.message : 'Upload failed'
+              }
             : u
         )
       );
@@ -98,13 +107,15 @@ export const UploadManager: React.FC<UploadManagerProps> = ({
   };
 
   const startUploads = async () => {
+    console.log('startUploads clicked', { uploadsLength: uploads.length, pendingCount: uploads.filter(u => u.status === 'pending').length });
     setIsUploading(true);
     setStats({ total: uploads.length, successful: 0, failed: 0 });
 
     const pendingUploads = uploads.filter(u => u.status === 'pending');
+    let shouldContinue = true;
 
     for (const upload of pendingUploads) {
-      if (!isUploading) break;
+      if (!shouldContinue) break;
       await uploadFile(upload);
       await new Promise(resolve => setTimeout(resolve, 500));
     }
