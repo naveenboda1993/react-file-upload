@@ -26,6 +26,21 @@ Google Document AI provides advanced document processing and data extraction cap
 3. Copy the API key
 4. Optionally restrict the API key to Document AI API only
 
+### Service account (recommended)
+
+For server-side integrations it's recommended to use a service account with Application Default Credentials instead of an API key.
+
+1. Go to IAM & Admin → Service Accounts in the Google Cloud Console
+2. Create a new service account and grant it the "Document AI Editor" or appropriate role
+3. Create and download a JSON key for the service account
+4. Place the JSON file on your server and set the environment variable `GOOGLE_APPLICATION_CREDENTIALS` to the absolute path of that file. Example:
+
+```env
+GOOGLE_APPLICATION_CREDENTIALS=/absolute/path/to/service-account.json
+```
+
+Important: Do NOT set `GOOGLE_APPLICATION_CREDENTIALS` to the API key string. That variable must point to the service account JSON file path. The application will use the service account to request OAuth2 access tokens automatically. If you prefer to use an API key instead, set `GOOGLE_API_KEY` (but API keys are less secure and may not support all Document AI features).
+
 ### 3. Configure Environment Variables
 
 Add the following to your `.env` file:

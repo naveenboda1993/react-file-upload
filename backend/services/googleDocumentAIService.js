@@ -1,11 +1,13 @@
 const axios = require('axios');
 const FormData = require('form-data');
+const { GoogleAuth } = require('google-auth-library');
 
 const GOOGLE_DOC_AI_ENABLED = process.env.GOOGLE_DOC_AI_ENABLED === 'true';
 const GOOGLE_PROJECT_ID = process.env.GOOGLE_PROJECT_ID;
 const GOOGLE_LOCATION = process.env.GOOGLE_LOCATION || 'us';
 const GOOGLE_PROCESSOR_ID = process.env.GOOGLE_PROCESSOR_ID;
 const GOOGLE_API_KEY = process.env.GOOGLE_API_KEY;
+const GOOGLE_APPLICATION_CREDENTIALS = process.env.GOOGLE_APPLICATION_CREDENTIALS;
 
 if (GOOGLE_DOC_AI_ENABLED && (!GOOGLE_PROJECT_ID || !GOOGLE_PROCESSOR_ID)) {
   console.warn('GOOGLE_DOC_AI_ENABLED is true but required credentials are not set');
@@ -24,12 +26,12 @@ async function uploadToGoogleDocAI(fileBuffer, originalname, mimetype) {
       throw new Error('Google Document AI service is not enabled');
     }
 
-    if (!GOOGLE_PROJECT_ID || !GOOGLE_PROCESSOR_ID || !GOOGLE_API_KEY) {
-      throw new Error('Google Document AI credentials are not configured');
+    if (!GOOGLE_PROJECT_ID || !GOOGLE_PROCESSOR_ID) {
+      throw new Error('Google Document AI project/processor are not configured');
     }
 
     const processorName = `projects/${GOOGLE_PROJECT_ID}/locations/${GOOGLE_LOCATION}/processors/${GOOGLE_PROCESSOR_ID}`;
-    const url = `https://${GOOGLE_LOCATION}-documentai.googleapis.com/v1/${processorName}:process`;
+    let url = `https://${GOOGLE_LOCATION}-documentai.googleapis.com/v1/${processorName}:process`;
 
     const base64Content = fileBuffer.toString('base64');
 
@@ -40,12 +42,31 @@ async function uploadToGoogleDocAI(fileBuffer, originalname, mimetype) {
       }
     };
 
+    // Determine auth method: prefer service account (Application Default Credentials),
+    // fall back to API key (as query param) if provided.
+    let headers = {
+      'Content-Type': 'application/json',
+      'x-goog-user-project': GOOGLE_PROJECT_ID
+    };
+
+    if (GOOGLE_APPLICATION_CREDENTIALS) {
+      const auth = new GoogleAuth({ scopes: 'https://www.googleapis.com/auth/cloud-platform' });
+      const client = await auth.getClient();
+      const tokenResponse = await client.getAccessToken();
+      const accessToken = tokenResponse?.token || tokenResponse;
+      if (!accessToken) {
+        throw new Error('Failed to obtain access token from Google credentials');
+      }
+      headers.Authorization = `Bearer ${accessToken}`;
+    } else if (GOOGLE_API_KEY) {
+      // API keys are accepted as query param for some Google REST APIs
+      url += `?key=${encodeURIComponent(GOOGLE_API_KEY)}`;
+    } else {
+      throw new Error('Google Document AI credentials are not configured (set GOOGLE_APPLICATION_CREDENTIALS or GOOGLE_API_KEY)');
+    }
+
     const response = await axios.post(url, requestBody, {
-      headers: {
-        'Authorization': `Bearer ${GOOGLE_API_KEY}`,
-        'Content-Type': 'application/json',
-        'x-goog-user-project': GOOGLE_PROJECT_ID
-      },
+      headers,
       timeout: 60000,
       maxBodyLength: Infinity
     });
@@ -81,17 +102,33 @@ async function getGoogleDocAIResult(operationName) {
       throw new Error('Google Document AI service is not enabled');
     }
 
-    if (!GOOGLE_API_KEY) {
-      throw new Error('Google Document AI credentials are not configured');
+    if (!GOOGLE_PROJECT_ID) {
+      throw new Error('Google Document AI project is not configured');
     }
 
-    const url = `https://${GOOGLE_LOCATION}-documentai.googleapis.com/v1/${operationName}`;
+    let url = `https://${GOOGLE_LOCATION}-documentai.googleapis.com/v1/${operationName}`;
+
+    let headers = {
+      'x-goog-user-project': GOOGLE_PROJECT_ID
+    };
+
+    if (GOOGLE_APPLICATION_CREDENTIALS) {
+      const auth = new GoogleAuth({ scopes: 'https://www.googleapis.com/auth/cloud-platform' });
+      const client = await auth.getClient();
+      const tokenResponse = await client.getAccessToken();
+      const accessToken = tokenResponse?.token || tokenResponse;
+      if (!accessToken) {
+        throw new Error('Failed to obtain access token from Google credentials');
+      }
+      headers.Authorization = `Bearer ${accessToken}`;
+    } else if (GOOGLE_API_KEY) {
+      url += `?key=${encodeURIComponent(GOOGLE_API_KEY)}`;
+    } else {
+      throw new Error('Google Document AI credentials are not configured (set GOOGLE_APPLICATION_CREDENTIALS or GOOGLE_API_KEY)');
+    }
 
     const response = await axios.get(url, {
-      headers: {
-        'Authorization': `Bearer ${GOOGLE_API_KEY}`,
-        'x-goog-user-project': GOOGLE_PROJECT_ID
-      },
+      headers,
       timeout: 30000
     });
 
