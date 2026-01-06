@@ -9,9 +9,12 @@
   <body class="m-0 p-0">
     <div id="root"></div>
     <script type="module">
-      const isElectron = window.electronAPI !== undefined;
-      const entrypoint = isElectron ? '/desktop/index.tsx' : '/src/main.tsx';
-      import(entrypoint);
-    </script>
+  const isElectron = window.electronAPI !== undefined;
+  if (isElectron) {
+    import('/desktop/index.tsx');
+  } else {
+    import('/src/main.tsx');
+  }
+</script>
   </body>
 </html>

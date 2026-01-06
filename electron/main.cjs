@@ -4,7 +4,6 @@ const fs = require('fs');
 const os = require('os');
 
 let mainWindow;
-
 const isDev = process.env.NODE_ENV === 'development';
 const isMac = process.platform === 'darwin';
 
@@ -28,9 +27,7 @@ function createWindow() {
 
   mainWindow.loadURL(startUrl);
 
-  if (isDev) {
-    mainWindow.webContents.openDevTools();
-  }
+  if (isDev) mainWindow.webContents.openDevTools();
 
   mainWindow.on('closed', () => {
     mainWindow = null;
@@ -40,21 +37,15 @@ function createWindow() {
 app.on('ready', createWindow);
 
 app.on('window-all-closed', () => {
-  if (!isMac) {
-    app.quit();
-  }
+  if (!isMac) app.quit();
 });
 
 app.on('activate', () => {
-  if (mainWindow === null) {
-    createWindow();
-  }
+  if (mainWindow === null) createWindow();
 });
 
 ipcMain.handle('dialog:openFolder', async () => {
-  const result = await dialog.showOpenDialog(mainWindow, {
-    properties: ['openDirectory']
-  });
+  const result = await dialog.showOpenDialog(mainWindow, { properties: ['openDirectory'] });
   return result.canceled ? null : result.filePaths[0];
 });
 
@@ -98,21 +89,14 @@ ipcMain.handle('fs:listDirectory', async (event, dirPath) => {
 });
 
 ipcMain.handle('fs:readFile', async (event, filePath) => {
-  try {
-    return await fs.promises.readFile(filePath);
-  } catch (error) {
-    throw new Error(`Failed to read file: ${error.message}`);
-  }
+  try { return await fs.promises.readFile(filePath); }
+  catch (error) { throw new Error(`Failed to read file: ${error.message}`); }
 });
 
 ipcMain.handle('fs:getFileInfo', async (event, filePath) => {
   try {
     const stats = await fs.promises.stat(filePath);
-    return {
-      size: stats.size,
-      modified: stats.mtime.toISOString(),
-      created: stats.birthtime.toISOString()
-    };
+    return { size: stats.size, modified: stats.mtime.toISOString(), created: stats.birthtime.toISOString() };
   } catch (error) {
     throw new Error(`Failed to get file info: ${error.message}`);
   }
