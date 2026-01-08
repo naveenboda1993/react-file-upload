@@ -6,6 +6,7 @@ import { MyFilesPage } from '../../pages/MyFilesPage';
 import { TeamFilesPage } from '../../pages/TeamFilesPage';
 import { AdminPage } from '../../pages/AdminPage';
 import { DashboardPage } from '../../pages/DashboardPage';
+import { InsightsPage } from '../../pages/InsightsPage';
 import { useAuth } from '../../contexts/AuthContext';
 
 export const Layout: React.FC = () => {
@@ -17,6 +18,8 @@ export const Layout: React.FC = () => {
     switch (activeTab) {
       case 'dashboard':
         return <DashboardPage />;
+      case 'insights':
+        return <InsightsPage />;
       case 'myFiles':
         return <MyFilesPage />;
       case 'teamFiles':

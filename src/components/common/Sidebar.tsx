@@ -1,6 +1,6 @@
 import React from 'react';
 import { useAuth } from '../../contexts/AuthContext';
-import { Files, Users, FolderOpen, BarChart3 } from 'lucide-react';
+import { Files, Users, FolderOpen, BarChart3, TrendingUp } from 'lucide-react';
 
 interface SidebarProps {
   activeTab: string;
@@ -19,6 +19,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
   const menuItems = [
     { id: 'dashboard', label: 'Dashboard', icon: BarChart3 },
+    { id: 'insights', label: 'Insights', icon: TrendingUp },
     { id: 'myFiles', label: 'My Files', icon: Files },
     { id: 'teamFiles', label: 'Team Files', icon: FolderOpen },
     ...(user?.role === 'admin'

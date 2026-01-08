@@ -60,3 +60,28 @@ export interface CreateEnvironmentProfileData {
   clientId: string;
   url: string;
 }
+
+export interface PowerBIConfig {
+  embedUrl: string;
+  reportId: string;
+  groupId: string;
+  accessKey: string;
+}
+
+export interface InsightStats {
+  totalDocuments: number;
+  totalSharedDocuments: number;
+  activeUsers: number;
+  processingSuccess: number;
+  processingFailed: number;
+  averageProcessingTime: number;
+}
+
+export interface PowerBIEmbedConfig {
+  embedUrl: string;
+  reportId: string;
+  groupId: string;
+  accessToken: string;
+  userName: string;
+  userId: string;
+}

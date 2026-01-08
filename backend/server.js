@@ -11,6 +11,7 @@ const fileRoutes = require('./routes/files');
 const environmentProfileRoutes = require('./routes/environmentProfiles');
 const abbyyFilesRoutes = require('./routes/abbyyFiles');
 const googleDocAIFilesRoutes = require('./routes/googleDocAIFiles');
+const insightsRoutes = require('./routes/insights');
 const { errorHandler } = require('./middleware/errorHandler');
 
 const app = express();
@@ -63,6 +64,7 @@ app.use('/api/files', fileRoutes);
 app.use('/api/environment-profiles', environmentProfileRoutes);
 app.use('/api/abbyy', abbyyFilesRoutes);
 app.use('/api/google-doc-ai', googleDocAIFilesRoutes);
+app.use('/api/insights', insightsRoutes);
 
 const BuildVersion= "2.3.0";
 
